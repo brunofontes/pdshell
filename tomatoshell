@@ -1,26 +1,31 @@
 #!/usr/bin/env bash
 
 # written by Nicolai Brand (lytix), 01.01.2022
+# edited by Bruno Fontes, 23.02.2022
 
 HELP="
--t, --time,    time for every session in minutes [default:15 minutes]
--d, --delay,   delay between sessions in minutes [default:5 minutes]
--m, --music,   chose song for cmus to play during each session
--n,            total sessions [default:4]
--f,            figlet on
--s, --song,    full path to song to be played by cmus
--h, --help,    shows this"
+-t,  --time,       time for every session in minutes [default:15 minutes]
+-d,  --delay,      delay between sessions in minutes [default:5 minutes]
+-m,  --music,      chose song for 'play' to play during each session
+-n,                total sessions [default:4]
+-f,                figlet on
+-s,  --song,       full path to song to be played by cmus
+-o,  --oxo,        locks the OXO KDE Activity in place during sessions
+-sc, --start-cmd,  bash command that will run at the start of a pomodoro
+-ec, --end-cmd,    bash command that will run at the end of a pomodoro
+-h,  --help,       shows this"
 
-TIME=15
+TIME=25
 DELAY=5
 SESSIONS=4
 
 # 0 -> off, 1 -> on
-MUSIC=0
+MUSIC=1
 FIGLET=0
 
-ALARM="alarm.wav"
-SONG="$HOME/Music/burzum-pomodoro.mp3"
+ALARM="$HOME/Apps/tomatoshell/alarm.wav"
+#SONG="/home/bruno/Apps/tomatoshell/music/focus_001.mp3"
+#SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
 
 # colors
 RED="\033[0;31m"
@@ -36,6 +41,11 @@ do
         -t|--time)
             TIME="$2"
             shift && shift # past argument and value
+            ;;
+        -o|--oxo)
+            SC="/home/bruno/Apps/linuxShortcuts/KDE/lockOXO.sh"
+            EC="killall lockOXO.sh"
+            shift
             ;;
         -d|--delay)
             DELAY="$2"
@@ -60,6 +70,14 @@ do
         -h|--help)
             echo -e "$HELP"
             exit 0
+            ;;
+        -sc|--start-cmd)
+            SC="$2"
+            shift && shift
+            ;;
+        -ec|--end-cmd)
+            EC="$2"
+            shift && shift
             ;;
         *)
             echo "Unknown option $1"
@@ -97,7 +115,8 @@ countdown() {
         [ $2 -ne -1 ] && figlet -c -t "Session $2/$SESSIONS finished" || figlet -c -t "Break finished"
     else
 
-        [ $2 -ne -1 ] && echo -e ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
+        [ $2 -ne -1 ] && echo -ne ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -ne "$GREEN""Break finished$FIN"
+        echo -e " (`date +"%X"`)"
     fi
     
     # stop music before alarm
@@ -110,20 +129,24 @@ countdown() {
     # turn on keypress again
     stty echo
 
-    process_name="paplay_tomatoshell"
+    process_name="aplay_tomatoshell"
     while :
     do
         # play alarm sound indefinetely until the 's' key is pressed
         # alsa
         # aplay -d 0 $ALARM &>/dev/null & read -t 0.01 -r -s -N 1
-        [ -e /proc/"$(pidof "$process_name")"/status ] ||
-            bash -c "exec -a \"$process_name\" paplay \"$ALARM\" >/dev/null" & read -t 0.01 -r -s -n 1
+        [ -e /proc/"$(pidof "$process_name")"/status ] || 
+            bash -c "exec -a \"$process_name\" aplay \"$ALARM\" >/dev/null 2>&1" & read -t 0.01 -r -s -n 1
     
         if [[ $REPLY == 's' ]]
         then 
-            pkill -f "$process_name"
+            #echo -en "\r                                                  \r"
+            # pkill -f aplay >/dev/null 2>&1
+            sleep 0.3
+            pkill -f "$process_name" >/dev/null 2>&1
             break
         fi
+        sleep 1
     done
     # turn off keypress after input received
     stty -echo
@@ -135,17 +158,21 @@ exit_p() {
     tput cnorm
     # turn on keyboard input again
     stty echo
-    [ $MUSIC -eq 1 ] && cmus-remote -U
+    "${EC}" >/dev/null 2>&1 &
+    [ $MUSIC -eq 1 ] && pkill -f play >/dev/null 2>&1
     echo -e ""$RED"\nexiting$FIN"
     exit $1
 }
 
 music_pause() {
-    cmus-remote -U
+    pkill -f play >/dev/null 2>&1
+    "${EC}" >/dev/null 2>&1
 }
 
 music_start() {
-    cmus-remote -C "player-play $SONG"
+    "${SC}" &>/dev/null &
+    [ -z $SONG ] && SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
+    play "$SONG" >/dev/null 2>&1 &
 }
  
 main() {
@@ -173,7 +200,7 @@ main() {
 
         # break
         # don't want to have a break after last session
-        [ $i -ne $SESSIONS ] &&  clear && echo "Time left of break:" && countdown $DELAY -1
+        [ $i -ne $SESSIONS ] && clear && echo "Time left of break:" && countdown $DELAY -1
     done
 }
 
