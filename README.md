@@ -1,41 +1,75 @@
-# Pomodoro timer in the shell with tomatoshell 🍅!
+# Pomodoro timer in the shell
 
-<div align="center">
-  <img src="https://github.com/LytixDev/tomatoshell/blob/main/sed11qlol.png" width="500">
-</div>
+> A fork of https://github.com/LytixDev/tomatoshell
 
-## Requirements: cmus (for music playback), figlet (for -f figlet mode on text).
+## Why?
+
+I've downloaded tomatoshell for my personal use and missed one or other detail
+that was very personal and it would not be interesting for the main tool.
+
+After a few month of using it, I noticed I was interesting in adding more
+functionalities and letting it open to interact with other tools.
+
+## Requirements: figlet (for -f figlet mode on text).
 
 ## How to use:
 ```
-git clone https://github.com/LytixDev/tomatoshell.git
+git clone https://github.com/brunofontes/pdshell
 ```
 ```
-cd tomatoshell
+cd pdshell
 ```
 ```
-./tomatoshell
+./pdshell
 ```
 
 ## Options
- -t, --time,    time for every session in minutes [default:15 minutes]
- 
- -d, --delay,   delay between sessions in minutes [default:5 minutes]
- 
- -m, --music,   chose song for cmus to play during each session (full path)
- 
- -n,            total sessions [default:4]
- 
- -f,            figlet on
- 
- -s, --song,    full path to song to be played by cmus
- 
- -h, --help,    shows this
+
+-t,  --time,          time for every session in minutes [default:25 minutes]
+
+-d,  --delay,         delay between sessions in minutes [default:5 minutes]
+
+-m,  --music,         chose song for 'play' to play during each session
+
+-n,                   total sessions [default:4]
+
+-f,                   figlet on
+
+-s,  --song,          full path to song to be played by cmus
+
+-o,  --oxo,           locks the OXO KDE Activity in place during sessions
+
+-sc, --start-cmd,     bash command that will run at the start of a pomodoro
+
+-ec, --end-cmd,       bash command that will run at the end of a pomodoro
+
+-pc, --pause-cmd,     bash command that will run at the start of a break
+
+-epc,--end-pause,cmd, bash command that will run at the end of a break
+
+-h,  --help,          shows this"
+
 
 ex:
 
-tomatoshell -n 2 -m /home/nic/Music/song.mp3 -t 30
+./pdshell -n 2 -m ~/Music/song.mp3 -t 30
 
-This will start the program with two sessions, play the song given during the session, and each session lasts for 30 minutes.
+This will start the program with two sessions, play the song given during 
+the session, and each session lasts for 30 minutes.
+
+## Objectives
+
+- Make it easy for the user to run one or more of their personal commands 
+  at the start or end of pomodoros, short breaks and long breaks
+- Make it possible to play local or online songs, randomly or not
+- Follow the Pomodoro technich rule: a pomodoro cannot be interrupted
 
 
+## Contributing
+
+If you find this interesting and want to help organizing and buildint
+it, just:
+
+- Fork it and get in touch!
+
+I will be happy to have some help improving the tool!
