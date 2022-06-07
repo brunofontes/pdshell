@@ -4,19 +4,22 @@
 # edited by Bruno Fontes, 23.02.2022
 
 HELP="
--t,  --time,       time for every session in minutes [default:15 minutes]
--d,  --delay,      delay between sessions in minutes [default:5 minutes]
--m,  --music,      chose song for 'play' to play during each session
--n,                total sessions [default:4]
--f,                figlet on
--s,  --song,       full path to song to be played by cmus
--o,  --oxo,        locks the OXO KDE Activity in place during sessions
--sc, --start-cmd,  bash command that will run at the start of a pomodoro
--ec, --end-cmd,    bash command that will run at the end of a pomodoro
--h,  --help,       shows this"
+-t,  --time,          time for every session in minutes [default:25 minutes]
+-d,  --delay,         delay between sessions in minutes [default:5 minutes]
+-m,  --music,         chose song for 'play' to play during each session
+-n,                   total sessions [default:4]
+-f,                   figlet on
+-s,  --song,          full path to song to be played by cmus
+-o,  --oxo,           locks the OXO KDE Activity in place during sessions
+-sc, --start-cmd,     bash command that will run at the start of a pomodoro
+-ec, --end-cmd,       bash command that will run at the end of a pomodoro
+-pc, --pause-cmd,     bash command that will run at the start of a break
+-epc,--end-pause,cmd, bash command that will run at the end of a break
+-h,  --help,          shows this"
 
 TIME=25
-DELAY=5
+DELAY=10
+LONG_DELAY=30
 SESSIONS=4
 
 # 0 -> off, 1 -> on
@@ -44,7 +47,7 @@ do
             ;;
         -o|--oxo)
             SC="/home/bruno/Apps/linuxShortcuts/KDE/lockOXO.sh"
-            EC="killall lockOXO.sh"
+            EC="/bin/killall lockOXO.sh"
             shift
             ;;
         -d|--delay)
@@ -53,6 +56,10 @@ do
             ;;
         -m|--music)
             MUSIC=1
+            shift
+            ;;
+        -nm|--no-music)
+            MUSIC=0
             shift
             ;;
         -n)
@@ -79,6 +86,14 @@ do
             EC="$2"
             shift && shift
             ;;
+        -pc|--pause-cmd)
+            SPC="$2"
+            shift && shift
+            ;;
+        -epc|--end-pause-cmd)
+            EPC="$2"
+            shift && shift
+            ;;
         *)
             echo "Unknown option $1"
             exit 1
@@ -95,6 +110,12 @@ countdown() {
 
     while [ "$start" -ge "$(date +%s)" ]
     do
+        read -t 0.1 -r -s -n 1
+        if [[ $REPLY == 'r' ]]
+        then 
+            start=$(($(date +%s) + $1));
+        fi
+            
         # due to the rendering of emoji's, the text needs to be offset to appear at the center
         print_offset=10
         [ $FIGLET -eq 1 ] && clear && printf "%*s\n" $(((${#msg}+$COLUMNS+$print_offset)/2)) "$msg" \
@@ -114,9 +135,7 @@ countdown() {
     then
         [ $2 -ne -1 ] && figlet -c -t "Session $2/$SESSIONS finished" || figlet -c -t "Break finished"
     else
-
-        [ $2 -ne -1 ] && echo -ne ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -ne "$GREEN""Break finished$FIN"
-        echo -e " (`date +"%X"`)"
+        [ $2 -ne -1 ] && echo -e ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
     fi
     
     # stop music before alarm
@@ -130,51 +149,77 @@ countdown() {
     stty echo
 
     process_name="aplay_tomatoshell"
-    while :
+    RETURN_CODE=0
+    while true
     do
         # play alarm sound indefinetely until the 's' key is pressed
-        # alsa
-        # aplay -d 0 $ALARM &>/dev/null & read -t 0.01 -r -s -N 1
-        [ -e /proc/"$(pidof "$process_name")"/status ] || 
-            bash -c "exec -a \"$process_name\" aplay \"$ALARM\" >/dev/null 2>&1" & read -t 0.01 -r -s -n 1
-    
+        [ $(pidof "$process_name") ] || 
+            bash -c "exec -a \"$process_name\" aplay -d 0 \"$ALARM\" >/dev/null 2>&1" &
+
+        read -t 0.1 -r -s -n 1
+        if [[ $REPLY == 'r' ]]
+        then
+            RETURN_CODE=1
+            break
+        fi
         if [[ $REPLY == 's' ]]
         then 
-            #echo -en "\r                                                  \r"
-            # pkill -f aplay >/dev/null 2>&1
-            sleep 0.3
-            pkill -f "$process_name" >/dev/null 2>&1
             break
         fi
         sleep 1
     done
+    sleep 0.3
+    pkill -f "$process_name" >/dev/null 2>&1
+
     # turn off keypress after input received
     stty -echo
     return 0
 }
 
 exit_p() {
+    $EC &>/dev/null &
     # turn on cursor again
     tput cnorm
     # turn on keyboard input again
     stty echo
-    "${EC}" >/dev/null 2>&1 &
-    [ $MUSIC -eq 1 ] && pkill -f play >/dev/null 2>&1
+    [ $MUSIC -eq 1 ] && music_pause
     echo -e ""$RED"\nexiting$FIN"
+
     exit $1
 }
 
 music_pause() {
-    pkill -f play >/dev/null 2>&1
-    "${EC}" >/dev/null 2>&1
+    [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
+    [ -z "$EC" ] && [ $SC_PID ] && kill $SC_PID >/dev/null &
+    $EC &>/dev/null &
 }
 
 music_start() {
-    "${SC}" &>/dev/null &
-    [ -z $SONG ] && SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
-    play "$SONG" >/dev/null 2>&1 &
+    $SC &>/dev/null &
+    [ $SC ] && SC_PID=$!
+
+    [ -z "$SONG" ] && SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
+    if [ -f "$SONG" ]; then
+        play "$SONG" >/dev/null 2>&1 &
+    else
+        $SONG &>/dev/null &
+    fi
+    SONG_PID=$!
+}
+
+break_start() {
+    if [ $SPC ]
+    then
+        $SPC &>/dev/null &
+        SPC_PID=$!
+    fi
 }
  
+break_stop() {
+    [ -z $EPC ] && [ $SPC_PID ] && kill $SPC_PID >/dev/null &
+    $EPC &>/dev/null &
+}
+
 main() {
     # when SIGINT is received, exit
     # necessary because 
@@ -186,22 +231,35 @@ main() {
     # have to divide by 1 to always get integer result
     TIME=$(echo "($TIME * 60)/1" | bc)
     DELAY=$(echo "($DELAY * 60)/1" | bc)
+    LONG_DELAY=$(echo "($LONG_DELAY * 60)/1" | bc)
 
     # turn off cursor
     tput civis
 
-    for ((i = 1; i <= $SESSIONS; i++))
+    while true
     do
-        # session
-        clear
-        echo "Time left of session $i/$SESSIONS:"
-        [ $MUSIC -eq 1 ] && music_start
-        countdown $TIME $i
+        for ((i = 1; i <= $SESSIONS; i++))
+        do
+            # session
+            clear
+            echo "Time left of session $i/$SESSIONS:"
+            [ $MUSIC -eq 1 ] && music_start
+            countdown $TIME $i
+            if [ $RETURN_CODE == 1 ]; then
+                ((i--))
+                RETURN_CODE=0
+                continue
+            fi
 
-        # break
-        # don't want to have a break after last session
-        [ $i -ne $SESSIONS ] && clear && echo "Time left of break:" && countdown $DELAY -1
-    done
+            # don't want to have a break after last session
+            [ $i -ne $SESSIONS ] && clear && echo "Time left of break:" && break_start && countdown $DELAY -1
+            break_stop
+        done
+        clear
+        echo "Time left of long break:" 
+        break_start && countdown $LONG_DELAY -1
+        break_stop
+   done
 }
 
 main
