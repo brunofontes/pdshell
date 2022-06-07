@@ -27,8 +27,6 @@ MUSIC=1
 FIGLET=0
 
 ALARM="$HOME/Apps/tomatoshell/alarm.wav"
-#SONG="/home/bruno/Apps/tomatoshell/music/focus_001.mp3"
-#SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
 
 # colors
 RED="\033[0;31m"
@@ -198,7 +196,7 @@ music_start() {
     $SC &>/dev/null &
     [ $SC ] && SC_PID=$!
 
-    [ -z "$SONG" ] && SONG=$(ls /home/bruno/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
+    [ -z "$SONG" ] && SONG=$(ls $HOME/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
     if [ -f "$SONG" ]; then
         play "$SONG" >/dev/null 2>&1 &
     else
