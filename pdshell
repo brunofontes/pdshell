@@ -24,7 +24,7 @@ pdshell -sc \"play music.mp3\" -sc \"myscript.sh\"
 "
 
 TIME=25
-DELAY=10
+DELAY=5
 LONG_DELAY=30
 SESSIONS=4
 
