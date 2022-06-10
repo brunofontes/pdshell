@@ -178,7 +178,7 @@ countdown() {
     # turn on keypress again
     stty echo
 
-    process_name="aplay_tomatoshell"
+    process_name="aplay_pdshell"
     RETURN_CODE=0
     while true
     do
@@ -248,7 +248,7 @@ cmd_end() {
 music_start() {
     [ -z "$SONG" ] && SONG=$(ls $HOME/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
     if [ -f "$SONG" ]; then
-        play "$SONG" >/dev/null 2>&1 &
+        aplay "$SONG" >/dev/null 2>&1 &
     else
         $SONG &>/dev/null &
     fi
