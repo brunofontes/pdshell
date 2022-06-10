@@ -11,11 +11,15 @@ HELP="
 -f,                   figlet on
 -s,  --song,          full path to song to be played by cmus
 -o,  --oxo,           locks the OXO KDE Activity in place during sessions
--sc, --start-cmd,     bash command that will run at the start of a pomodoro
+-sc, --start-cmd,     *bash command that will run at the start of a pomodoro
 -ec, --end-cmd,       bash command that will run at the end of a pomodoro
 -pc, --pause-cmd,     bash command that will run at the start of a break
 -epc,--end-pause,cmd, bash command that will run at the end of a break
--h,  --help,          shows this"
+-h,  --help,          shows this
+
+* You can add multiple commands by including the prefix again. Example:
+pdshell -sc \"play music.mp3\" -sc \"myscript.sh\"
+"
 
 TIME=25
 DELAY=10
@@ -77,7 +81,7 @@ do
             exit 0
             ;;
         -sc|--start-cmd)
-            SC="$2"
+            SC+=("$2")
             shift && shift
             ;;
         -ec|--end-cmd)
@@ -129,8 +133,7 @@ countdown() {
     [ $2 -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $2 finished"
     
     # message when session is finished
-    if [ $FIGLET -eq 1 ]
-    then
+    if [ $FIGLET -eq 1 ]; then
         [ $2 -ne -1 ] && figlet -c -t "Session $2/$SESSIONS finished" || figlet -c -t "Break finished"
     else
         [ $2 -ne -1 ] && echo -e ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
@@ -155,13 +158,11 @@ countdown() {
             bash -c "exec -a \"$process_name\" aplay -d 0 \"$ALARM\" >/dev/null 2>&1" &
 
         read -t 0.1 -r -s -n 1
-        if [[ $REPLY == 'r' ]]
-        then
+        if [[ $REPLY == 'r' ]]; then
             RETURN_CODE=1
             break
         fi
-        if [[ $REPLY == 's' ]]
-        then 
+        if [[ $REPLY == 's' ]]; then 
             break
         fi
         sleep 1
@@ -187,14 +188,27 @@ exit_p() {
 }
 
 music_pause() {
+    if [ "$EC" ]; then
+        eval $EC &>/dev/null &
+    else
+        for pd in "${SC_PID[@]}"
+        do
+            parentpid=$(/bin/ps -o ppid= -p "$pd")
+            if [ "$parentpid" = "$OWN_PID" ]; then
+                kill $pd &>/dev/null &
+            fi
+        done
+        unset SC_PID
+    fi
     [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
-    [ -z "$EC" ] && [ $SC_PID ] && kill $SC_PID >/dev/null &
-    $EC &>/dev/null &
 }
 
 music_start() {
-    $SC &>/dev/null &
-    [ $SC ] && SC_PID=$!
+    for cmd in "${SC[@]}"
+    do
+        exec $cmd &>/dev/null &
+        SC_PID+=("$!")
+    done
 
     [ -z "$SONG" ] && SONG=$(ls $HOME/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
     if [ -f "$SONG" ]; then
@@ -202,7 +216,7 @@ music_start() {
     else
         $SONG &>/dev/null &
     fi
-    SONG_PID=$!
+    [ $SONG ] && SONG_PID=$!
 }
 
 break_start() {
@@ -230,6 +244,8 @@ main() {
     TIME=$(echo "($TIME * 60)/1" | bc)
     DELAY=$(echo "($DELAY * 60)/1" | bc)
     LONG_DELAY=$(echo "($LONG_DELAY * 60)/1" | bc)
+
+    OWN_PID=$$
 
     # turn off cursor
     tput civis
