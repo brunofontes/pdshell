@@ -10,6 +10,7 @@ HELP="
 -n,                   total sessions [default:4]
 -f,                   figlet on
 -s,  --song,          full path to song to be played by cmus
+-c,    --config,                read an alternative config file
 -o,  --oxo,           locks the OXO KDE Activity in place during sessions
 -sc, --start-cmd,     *bash command that will run at the start of a pomodoro
 -ec, --end-cmd,       bash command that will run at the end of a pomodoro
@@ -31,6 +32,8 @@ MUSIC=1
 FIGLET=0
 
 ALARM="$HOME/Apps/tomatoshell/alarm.wav"
+
+CONFIG="$HOME/.config/pdshell.conf"
 
 # colors
 RED="\033[0;31m"
@@ -94,6 +97,8 @@ do
             ;;
         -epc|--end-pause-cmd)
             EPC="$2"
+        -c|--config)
+            CONFIG="$2"
             shift && shift
             ;;
         *)
@@ -102,6 +107,11 @@ do
             ;;
     esac
 done
+
+# Read the configuration file
+if [ -r $CONFIG ]; then
+    source $CONFIG
+fi
 
 countdown() {
     # args: $1 -> length of countdown in seconds, $2, session number (-1 = break)
