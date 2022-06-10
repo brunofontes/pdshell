@@ -97,6 +97,8 @@ do
             ;;
         -epc|--end-pause-cmd)
             EPC="$2"
+            shift && shift
+            ;;
         -c|--config)
             CONFIG="$2"
             shift && shift
@@ -151,6 +153,7 @@ countdown() {
     
     # stop music before alarm
     [ $MUSIC -eq 1 ] && music_pause
+    cmd_end
 
     # when session is finished, start the alarm
     printf "Press 's' to stop alarm"
@@ -192,12 +195,26 @@ exit_p() {
     # turn on keyboard input again
     stty echo
     [ $MUSIC -eq 1 ] && music_pause
+    cmd_end
     echo -e ""$RED"\nexiting$FIN"
 
     exit $1
 }
 
 music_pause() {
+    [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
+}
+
+
+cmd_start() {
+    for cmd in "${SC[@]}"
+    do
+        exec $cmd &>/dev/null &
+        SC_PID+=("$!")
+    done
+}
+
+cmd_end() {
     if [ "$EC" ]; then
         eval $EC &>/dev/null &
     else
@@ -210,16 +227,9 @@ music_pause() {
         done
         unset SC_PID
     fi
-    [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
 }
 
 music_start() {
-    for cmd in "${SC[@]}"
-    do
-        exec $cmd &>/dev/null &
-        SC_PID+=("$!")
-    done
-
     [ -z "$SONG" ] && SONG=$(ls $HOME/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
     if [ -f "$SONG" ]; then
         play "$SONG" >/dev/null 2>&1 &
@@ -268,6 +278,7 @@ main() {
             clear
             echo "Time left of session $i/$SESSIONS:"
             [ $MUSIC -eq 1 ] && music_start
+            cmd_start
             countdown $TIME $i
             if [ $RETURN_CODE == 1 ]; then
                 ((i--))
