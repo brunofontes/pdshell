@@ -16,6 +16,7 @@ HELP="
 -ec, --end-cmd,       bash command that will run at the end of a pomodoro
 -pc, --pause-cmd,     bash command that will run at the start of a break
 -epc,--end-pause,cmd, bash command that will run at the end of a break
+       --install,               Install the config file to \"$HOME/.config/pdshell.conf\" and abort
 -h,  --help,          shows this
 
 * You can add multiple commands by including the prefix again. Example:
@@ -46,6 +47,11 @@ FIN="\033[0m"
 while [[ $# -gt 0 ]]
 do
     case $1 in
+        --install)
+            cp --no-clobber config.conf $CONFIG
+            echo "Config file installed on: $CONFIG"
+            exit 0
+            ;;
         -t|--time)
             TIME="$2"
             shift && shift # past argument and value
