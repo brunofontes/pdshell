@@ -4,22 +4,29 @@
 # edited by Bruno Fontes, 23.02.2022
 
 HELP="
--t,  --time,          time for every session in minutes [default:25 minutes]
--d,  --delay,         delay between sessions in minutes [default:5 minutes]
--m,  --music,         chose song for 'play' to play during each session
--n,                   total sessions [default:4]
--f,                   figlet on
--s,  --song,          full path to song to be played by cmus
+-t,    --time,                  time for every session in minutes [default:25 minutes]
+-d,    --delay,                 delay between sessions in minutes [default:5 minutes]
+-m,    --music,                 chose song for 'aplay' to play during each session
+-n,                             total sessions [default:4]
+-f,                             figlet on
+-s,    --song,                  full path to song to be played by aplay
 -c,    --config,                read an alternative config file
--sc, --start-cmd,     *bash command that will run at the start of a pomodoro
--ec, --end-cmd,       bash command that will run at the end of a pomodoro
--pc, --pause-cmd,     bash command that will run at the start of a break
--epc,--end-pause,cmd, bash command that will run at the end of a break
+
+-sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
+-ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
+
+-ssbc, --start-short-break-cmd, *bash command that will run at the start of a short break
+-esbc, --end-short-break-cmd,   *bash command that will run at the end of a short break
+
+-slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
+-elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
+
        --install,               Install the config file to \"$HOME/.config/pdshell.conf\" and abort
--h,  --help,          shows this
+
+-h,    --help,                  shows this help
 
 * You can add multiple commands by including the prefix again. Example:
-pdshell -sc \"play music.mp3\" -sc \"myscript.sh\"
+pdshell -sc \"play ~/music.mp3\" -sc \"myscript.sh\"
 "
 
 TIME=25
@@ -94,15 +101,23 @@ do
             shift && shift
             ;;
         -ec|--end-cmd)
-            EC="$2"
+            EC+=("$2")
             shift && shift
             ;;
-        -pc|--pause-cmd)
-            SPC="$2"
+        -ssbc|--start-short-break-cmd)
+            SSBC+=("$2")
             shift && shift
             ;;
-        -epc|--end-pause-cmd)
-            EPC="$2"
+        -esbc|--end-short-break-cmd)
+            ESBC+=("$2")
+            shift && shift
+            ;;
+        -slbc|--start-long-break-cmd)
+            SSBC+=("$2")
+            shift && shift
+            ;;
+        -elbc|--end-long-break-cmd)
+            ESBC+=("$2")
             shift && shift
             ;;
         -c|--config)
@@ -241,16 +256,16 @@ music_start() {
 }
 
 break_start() {
-    if [ $SPC ]
+    if [ $SSBC ]
     then
-        $SPC &>/dev/null &
+        $SSBC &>/dev/null &
         SPC_PID=$!
     fi
 }
  
 break_stop() {
-    [ -z $EPC ] && [ $SPC_PID ] && kill $SPC_PID >/dev/null &
-    $EPC &>/dev/null &
+    [ -z $ESBC ] && [ $SPC_PID ] && kill $SPC_PID >/dev/null &
+    $ESBC &>/dev/null &
 }
 
 main() {
