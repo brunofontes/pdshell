@@ -11,7 +11,6 @@ HELP="
 -f,                   figlet on
 -s,  --song,          full path to song to be played by cmus
 -c,    --config,                read an alternative config file
--o,  --oxo,           locks the OXO KDE Activity in place during sessions
 -sc, --start-cmd,     *bash command that will run at the start of a pomodoro
 -ec, --end-cmd,       bash command that will run at the end of a pomodoro
 -pc, --pause-cmd,     bash command that will run at the start of a break
@@ -55,11 +54,6 @@ do
         -t|--time)
             TIME="$2"
             shift && shift # past argument and value
-            ;;
-        -o|--oxo)
-            SC="/home/bruno/Apps/linuxShortcuts/KDE/lockOXO.sh"
-            EC="/bin/killall lockOXO.sh"
-            shift
             ;;
         -d|--delay)
             DELAY="$2"
