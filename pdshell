@@ -262,18 +262,29 @@ cmd_start() {
 }
 
 cmd_end() {
-    if [ "$EC" ]; then
-        eval $EC &>/dev/null &
-    else
-        for pd in "${SC_PID[@]}"
+    if [ "${#EC[*]}" -gt 0 ]; then
+        for cmd in "${EC[@]}"
         do
-            parentpid=$(/bin/ps -o ppid= -p "$pd")
-            if [ "$parentpid" = "$OWN_PID" ]; then
-                kill $pd &>/dev/null &
-            fi
+            eval $cmd &>/dev/null &
         done
         unset SC_PID
+        return
     fi
+
+    kill_own_pids SC_PID[@]
+    unset SC_PID
+}
+
+kill_own_pids() {
+    declare -a PIDS=("${!1}")
+    for pd in "${PIDS[@]}"
+    do
+        parentpid=`/bin/ps -o ppid= -p "$pd"`
+        if [ $parentpid -a $parentpid == $OWN_PID ]; then
+            kill $pd &>/dev/null &
+        fi
+    done
+    return 0
 }
 
 music_start() {
@@ -287,15 +298,17 @@ music_start() {
 }
 
 break_start() {
-    if [ $SSBC ]
-    then
-        $SSBC &>/dev/null &
-        SPC_PID=$!
+    if [ "${#SSBC[*]}" -gt 0 ]; then
+        exec $SSBC &>/dev/null &
+        SSBC_PID=$!
     fi
 }
  
 break_stop() {
-    [ -z $ESBC ] && [ $SPC_PID ] && kill $SPC_PID >/dev/null &
+    if [ -z $ESBC ]; then
+        kill_own_pids SSBC_PID[@]
+        unset SSBC_PID
+    fi
     $ESBC &>/dev/null &
 }
 
