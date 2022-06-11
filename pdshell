@@ -38,7 +38,8 @@ SESSIONS=4
 MUSIC=1
 FIGLET=0
 
-ALARM="$HOME/Apps/tomatoshell/alarm.wav"
+OWN_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+ALARM="$OWN_PATH/alarm.wav"
 
 CONFIG="$HOME/.config/pdshell.conf"
 
@@ -246,7 +247,7 @@ cmd_end() {
 }
 
 music_start() {
-    [ -z "$SONG" ] && SONG=$(ls $HOME/Apps/tomatoshell/music/*.mp3 | sort -R | tail -1) #Choose a random music
+    [ -z "$SONG" ] && SONG=$(ls $OWN_PATH/music/*.mp3 | sort -R | tail -1) #Choose a random music
     if [ -f "$SONG" ]; then
         aplay "$SONG" >/dev/null 2>&1 &
     else
