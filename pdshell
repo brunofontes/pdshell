@@ -207,8 +207,10 @@ countdown() {
     while true
     do
         # play alarm sound indefinetely until the 's' key is pressed
-        [ $(pidof "$process_name") ] || 
-            bash -c "exec -a \"$process_name\" aplay -d 0 \"$ALARM\" >/dev/null 2>&1" &
+        
+        if [ -z $(pidof "$process_name") ]; then
+            bash -c "exec -a $process_name aplay \"$ALARM\" &>/dev/null" &
+        fi
 
         read -t 0.1 -r -s -n 1
         if [[ $REPLY == 'r' ]]; then
@@ -221,7 +223,12 @@ countdown() {
         sleep 1
     done
     sleep 0.3
-    pkill -f "$process_name" >/dev/null 2>&1
+    pkill -f "$process_name" &>/dev/null
+    sleep 0.1
+    if [ $(pidof "$process_name") ]
+    then
+        pkill -9 -f "$process_name" &>/dev/null
+    fi
 
     # turn off keypress after input received
     stty -echo
