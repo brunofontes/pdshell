@@ -60,7 +60,8 @@ FIN="\033[0m"
 
 
 # Read the configuration file
-if [ -r $CONFIG ]; then
+if [ -r $CONFIG ]
+then
     source $CONFIG
 fi
 
@@ -150,25 +151,23 @@ countdown() {
     while [ "$start" -ge "$(date +%s)" ]
     do
         read -t 0.1 -r -s -n 1
-        if [[ $REPLY == 'r' ]]
-        then 
-            start=$(($(date +%s) + $1));
-        fi
-        if [[ $REPLY == 'p' ]]
-        then
-            echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
-            read
-            start=$(($(date +%s) + $1));
-            echo -en "\r                                                  \r"
-        fi
-        if [[ $REPLY == 'n' ]]
-        then
-            start=$(date +%s)
-        fi
-        if [[ $REPLY == 'q' ]]
-        then
-            exit_p
-        fi
+        case $REPLY in
+            r)
+                start=$(($(date +%s) + $1));
+                ;;
+            p)
+                echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
+                read
+                start=$(($(date +%s) + $1));
+                echo -en "\r                                                  \r"
+                ;;
+            n)
+                start=$(date +%s)
+                ;;
+            q)
+                exit_p
+                ;;
+        esac
             
         # due to the rendering of emoji's, the text needs to be offset to appear at the center
         print_offset=10
@@ -185,7 +184,8 @@ countdown() {
     [ $2 -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $2 finished"
     
     # message when session is finished
-    if [ $FIGLET -eq 1 ]; then
+    if [ $FIGLET -eq 1 ]
+    then
         [ $2 -ne -1 ] && figlet -c -t "Session $2/$SESSIONS finished" || figlet -c -t "Break finished"
     else
         [ $2 -ne -1 ] && echo -e ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
@@ -208,16 +208,19 @@ countdown() {
     do
         # play alarm sound indefinetely until the 's' key is pressed
         
-        if [ -z $(pidof "$process_name") ]; then
+        if [ -z $(pidof "$process_name") ]
+        then
             bash -c "exec -a $process_name aplay \"$ALARM\" &>/dev/null" &
         fi
 
         read -t 0.1 -r -s -n 1
-        if [[ $REPLY == 'r' ]]; then
+        if [[ $REPLY == 'r' ]]
+        then
             RETURN_CODE=1
             break
         fi
-        if [[ $REPLY == 's' ]]; then 
+        if [[ $REPLY == 's' ]]
+        then 
             break
         fi
         sleep 1
@@ -262,7 +265,8 @@ cmd_start() {
 }
 
 cmd_end() {
-    if [ "${#EC[*]}" -gt 0 ]; then
+    if [ "${#EC[*]}" -gt 0 ]
+    then
         for cmd in "${EC[@]}"
         do
             eval $cmd &>/dev/null &
@@ -280,7 +284,8 @@ kill_own_pids() {
     for pd in "${PIDS[@]}"
     do
         parentpid=`/bin/ps -o ppid= -p "$pd"`
-        if [ $parentpid -a $parentpid == $OWN_PID ]; then
+        if [ $parentpid -a $parentpid == $OWN_PID ]
+        then
             kill $pd &>/dev/null &
         fi
     done
@@ -289,7 +294,8 @@ kill_own_pids() {
 
 music_start() {
     [ -z "$SONG" ] && SONG=$(ls $OWN_PATH/music/*.mp3 | sort -R | tail -1) #Choose a random music
-    if [ -f "$SONG" ]; then
+    if [ -f "$SONG" ]
+    then
         aplay "$SONG" >/dev/null 2>&1 &
     else
         $SONG &>/dev/null &
@@ -298,14 +304,16 @@ music_start() {
 }
 
 break_start() {
-    if [ "${#SSBC[*]}" -gt 0 ]; then
+    if [ "${#SSBC[*]}" -gt 0 ]
+    then
         exec $SSBC &>/dev/null &
         SSBC_PID=$!
     fi
 }
  
 break_stop() {
-    if [ -z $ESBC ]; then
+    if [ -z $ESBC ]
+    then
         kill_own_pids SSBC_PID[@]
         unset SSBC_PID
     fi
@@ -340,7 +348,8 @@ main() {
             [ $MUSIC -eq 1 ] && music_start
             cmd_start
             countdown $TIME $i
-            if [ $RETURN_CODE == 1 ]; then
+            if [ $RETURN_CODE == 1 ]
+            then
                 ((i--))
                 RETURN_CODE=0
                 continue
