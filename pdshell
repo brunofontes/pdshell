@@ -4,6 +4,14 @@
 # edited by Bruno Fontes, 23.02.2022
 
 HELP="
+During a pomodoro, you can use the following shotcuts:
+r - reset a pomodoro
+p - pause the pomodoro (it restart the pomo afterwards)
+n - (temporary) advance to the last second of the actual pomo
+q - quit
+
+CMD parameters available:
+
 -t,    --time,                  time for every session in minutes [default:25 minutes]
 -d,    --delay,                 delay between sessions in minutes [default:5 minutes]
 -m,    --music,                 chose song for 'aplay' to play during each session
@@ -145,6 +153,21 @@ countdown() {
         if [[ $REPLY == 'r' ]]
         then 
             start=$(($(date +%s) + $1));
+        fi
+        if [[ $REPLY == 'p' ]]
+        then
+            echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
+            read
+            start=$(($(date +%s) + $1));
+            echo -en "\r                                                  \r"
+        fi
+        if [[ $REPLY == 'n' ]]
+        then
+            start=$(date +%s)
+        fi
+        if [[ $REPLY == 'q' ]]
+        then
+            exit_p
         fi
             
         # due to the rendering of emoji's, the text needs to be offset to appear at the center

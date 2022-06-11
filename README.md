@@ -22,30 +22,54 @@ $ cd pdshell
 $ ./pdshell
 ```
 
-## Options
+## Shortcuts
+
+During a pomodoro, you can use the following shotcuts:
+
 ```
--t,  --time,          time for every session in minutes [default:25 minutes]
--d,  --delay,         delay between sessions in minutes [default:5 minutes]
--m,  --music,         chose song for 'play' to play during each session
--n,                   total sessions [default:4]
--f,                   figlet on
--s,  --song,          full path to song or command
--o,  --oxo,           locks the OXO KDE Activity in place during sessions
--sc, --start-cmd,     bash command that will run at the start of a pomodoro
--ec, --end-cmd,       bash command that will run at the end of a pomodoro
--pc, --pause-cmd,     bash command that will run at the start of a break
--epc,--end-pause,cmd, bash command that will run at the end of a break
--h,  --help,          shows this"
+r - reset a pomodoro
+p - pause the pomodoro (it restart the pomo afterwards)
+n - (temporary) advance to the last second of the actual pomo
+q - quit
 ```
 
+
+## Usage
+```
+-t,    --time,                  time for every session in minutes [default:25 minutes]
+-d,    --delay,                 delay between sessions in minutes [default:5 minutes]
+-m,    --music,                 enable the music
+-nm,   --no-music,              disalbe the music
+-n,                             total sessions [default:4]
+-f,                             figlet on
+-s,    --song,                  full path to song to be played by aplay
+-c,    --config,                read an alternative config file
+
+-sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
+-ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
+
+-ssbc, --start-short-break-cmd, *bash command that will run at the start of a short break
+-esbc, --end-short-break-cmd,   *bash command that will run at the end of a short break
+
+-slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
+-elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
+
+       --install,               Install the config file to \"$HOME/.config/pdshell.conf\" and abort
+
+-h,    --help,                  shows this help
+```
+
+* You can add multiple commands by including the prefix again. Example:
+pdshell -sc \"play ~/music.mp3\" -sc \"myscript.sh\"
+
 Example 1:
-`./pdshell -n 2 --music ~/Music/song.mp3 -t 30`
+`./pdshell -n 2 -s ~/Music/song.mp3 -t 30`
 
 This will start the program with two sessions, play the song given during 
 the session, and each session lasts for 30 minutes.
 
 Example 2:
-`./pdshell --song "/bin/mpv --vid=no https://www.youtube.com/watch?v=AiH9LG22zW4"`
+`./pdshell -sc "/bin/mpv --vid=no https://www.youtube.com/watch?v=AiH9LG22zW4"`
 
 This will start a regular pomodoro, but playing the YouTube video in the background using MPV.
 
