@@ -152,6 +152,9 @@ countdown() {
     do
         read -t 0.1 -r -s -n 1
         case $REPLY in
+            $letter)
+                exec $letcmd &
+                ;;
             r)
                 start=$(($(date +%s) + $1));
                 ;;
