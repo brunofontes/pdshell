@@ -141,6 +141,30 @@ do
     esac
 done
 
+shortcuts() {
+    local answer=$1
+    case $answer in
+        $letter)
+            exec $letcmd &>/dev/null &
+            ;;
+        r)
+            start=$(($(date +%s) + $1));
+            ;;
+        p)
+            echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
+            read
+            start=$(($(date +%s) + $1));
+            echo -en "\r                                                  \r"
+            ;;
+        n)
+            start=$(date +%s)
+            ;;
+        q)
+            exit_p
+            ;;
+    esac
+}
+
 countdown() {
     # args: $1 -> length of countdown in seconds, $2, session number (-1 = break)
     msg="🍅Time left of session $2/$SESSIONS:🍅"
@@ -151,26 +175,7 @@ countdown() {
     while [ "$start" -ge "$(date +%s)" ]
     do
         read -t 0.1 -r -s -n 1
-        case $REPLY in
-            $letter)
-                exec $letcmd &
-                ;;
-            r)
-                start=$(($(date +%s) + $1));
-                ;;
-            p)
-                echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
-                read
-                start=$(($(date +%s) + $1));
-                echo -en "\r                                                  \r"
-                ;;
-            n)
-                start=$(date +%s)
-                ;;
-            q)
-                exit_p
-                ;;
-        esac
+        shortcuts $REPLY
             
         # due to the rendering of emoji's, the text needs to be offset to appear at the center
         print_offset=10
