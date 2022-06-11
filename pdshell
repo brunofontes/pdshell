@@ -204,11 +204,10 @@ countdown() {
     cmd_end
 
     # when session is finished, start the alarm
-    printf "Press 's' to stop alarm"
+    printf "\nPress 's' to stop alarm\n"
+    printf "Press 'r' to restart last pomodoro\n"
+    printf "Press 'q' to quit\n"
     [ $2 -eq -1 ] && echo " and start next session" || echo ""
-
-    # turn on keypress again
-    stty echo
 
     process_name="aplay_pdshell"
     RETURN_CODE=0
@@ -222,16 +221,20 @@ countdown() {
         fi
 
         read -t 0.1 -r -s -n 1
-        if [[ $REPLY == 'r' ]]
-        then
-            RETURN_CODE=1
-            break
-        fi
-        if [[ $REPLY == 's' ]]
-        then 
-            break
-        fi
-        sleep 1
+        case $REPLY in
+            r)
+                RETURN_CODE=1
+                break
+                ;;
+            s)
+                break
+                ;;
+            q)
+                pkill -f "$process_name" &>/dev/null
+                exit_p
+                ;;
+        esac
+        sleep 0.5
     done
     sleep 0.3
     pkill -f "$process_name" &>/dev/null
@@ -262,7 +265,6 @@ exit_p() {
 music_pause() {
     [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
 }
-
 
 cmd_start() {
     for cmd in "${SC[@]}"
@@ -366,6 +368,12 @@ main() {
             # don't want to have a break after last session
             [ $i -ne $SESSIONS ] && clear && echo "Time left of break:" && break_start && countdown $DELAY -1
             break_stop
+            if [ $RETURN_CODE == 1 ]
+            then
+                ((i--))
+                RETURN_CODE=0
+                continue
+            fi
         done
         clear
         echo "Time left of long break:" 
