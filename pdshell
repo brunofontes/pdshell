@@ -14,10 +14,10 @@ CMD parameters available:
 
 -t,    --time,                  time for every session in minutes [default:25 minutes]
 -d,    --delay,                 delay between sessions in minutes [default:5 minutes]
--m,    --music,                 chose song for 'play' to play during each session
+-m,    --music,                 choose a mp3 file or a folder of mp3s to play during each session
 -n,                             total sessions [default:4]
 -f,                             figlet on
--s,    --song,                  full path to song to be played by play
+-s,    --song,                  path to mp3 or folder of mp3s to play during each session
 -c,    --config,                read an alternative config file
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
