@@ -12,15 +12,21 @@ direction than the original tool and I was interesting in adding more
 functionalities and letting it open to interact with other tools.
 
 ## Requirements: 
-- figlet (for -f figlet mode on text)
-- aplay (for playing local music)
+- figlet: for -f figlet mode on text
+- play (sox): for playing local music
 
-## How to use:
+## How to install:
 ```
 $ git clone https://github.com/brunofontes/pdshell
 $ cd pdshell
-$ ./pdshell
+$ ./pdshell --install
 ```
+
+## How to use:
+`$ pdshell`
+
+You can use cmd parameters or change the configuration file to personalize.
+As default, it will play any mp3 files under `$HOME/Music`
 
 ## Shortcuts
 
@@ -54,7 +60,8 @@ q - quit
 -slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
 -elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
 
-       --install,               Install the config file to \"$HOME/.config/pdshell.conf\" and abort
+       --install,               Install the program to be run from anywhere
+       --uninstall,             Uninstall the program
 
 -h,    --help,                  shows this help
 ```

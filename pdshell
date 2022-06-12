@@ -3,6 +3,8 @@
 # written by Nicolai Brand (lytix), 01.01.2022
 # edited by Bruno Fontes, 23.02.2022
 
+NAME="pdshell"
+
 HELP="
 During a pomodoro, you can use the following shotcuts:
 r - reset a pomodoro
@@ -29,12 +31,13 @@ CMD parameters available:
 -slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
 -elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
 
-       --install,               Install the config file to \"$HOME/.config/pdshell.conf\" and abort
+       --install,               Install the program to be run from anywhere
+       --uninstall,             Uninstall the program
 
 -h,    --help,                  shows this help
 
 * You can add multiple commands by including the prefix again. Example:
-pdshell -sc \"play ~/music.mp3\" -sc \"myscript.sh\"
+$NAME -sc \"play ~/music.mp3\" -sc \"start_todo.sh\"
 "
 
 TIME=25
@@ -47,11 +50,12 @@ MUSIC=1
 FIGLET=0
 
 OWN_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-SONG="$OWN_PATH/music"
-ALARM="$OWN_PATH/alarm.wav"
+SONG="$HOME/Music"
+SHARE_FOLDER="$HOME/.local/share/$NAME/"
+ALARM="$SHARE_FOLDER/alarm.wav"
 
 PLAYER="/usr/bin/play -q"
-CONFIG="$HOME/.config/pdshell.conf"
+CONFIG="$HOME/.config/$NAME.conf"
 
 
 # colors
@@ -73,8 +77,17 @@ while [[ $# -gt 0 ]]
 do
     case $1 in
         --install)
+            sudo cp --force "$NAME" "/usr/local/bin/"
             cp --no-clobber config.conf $CONFIG
-            echo "Config file installed on: $CONFIG"
+            mkdir -p "$SHARE_FOLDER"
+            cp alarm.wav "$ALARM"
+            echo "$NAME installed. Check the configuration file on: $CONFIG"
+            exit 0
+            ;;
+        --uninstall)
+            sudo rm "/usr/local/bin/$NAME"
+            rm -rf "$SHARE_FOLDER"
+            echo "$NAME uninstalled."
             exit 0
             ;;
         -t|--time)
@@ -139,7 +152,7 @@ do
             ;;
         *)
             echo "Unknown option $1"
-            echo "Type pdshell --help to view help window"
+            echo "Type $NAME --help to view help window"
             exit 1
             ;;
     esac
