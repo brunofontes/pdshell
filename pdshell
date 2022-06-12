@@ -345,7 +345,7 @@ music_start() {
     SONG_PID=$!
 }
 
-break_start() {
+short_break_start() {
     if [ "${#SSBC[*]}" -gt 0 ]
     then
         exec $SSBC &>/dev/null &
@@ -353,13 +353,36 @@ break_start() {
     fi
 }
  
-break_stop() {
+short_break_stop() {
     if [ -z $ESBC ]
     then
         kill_own_pids SSBC_PID[@]
         unset SSBC_PID
     fi
-    $ESBC &>/dev/null &
+    if [ "${#ESBC[*]}" -gt 0 ]
+    then
+        exec $ESBC &>/dev/null &
+    fi
+}
+
+long_break_start() {
+    if [ "${#SLBC[*]}" -gt 0 ]
+    then
+        exec $SLBC &>/dev/null &
+        SLBC_PID=$!
+    fi
+}
+ 
+long_break_stop() {
+    if [ -z $ELBC ]
+    then
+        kill_own_pids SSBC_PID[@]
+        unset SLBC_PID
+    fi
+    if [ "${#ELBC[*]}" -gt 0 ]
+    then
+        exec $ELBC &>/dev/null &
+    fi
 }
 
 check_files_exist() {
@@ -410,11 +433,11 @@ main() {
             then
                 clear
                 echo "Time left of break:"
-                break_start
+                short_break_start
                 countdown $DELAY -1
             fi
 
-            break_stop
+            short_break_stop
             if [ $RETURN_CODE == 1 ]
             then
                 ((i--))
@@ -425,8 +448,9 @@ main() {
         done
         clear
         echo "Time left of long break:" 
-        break_start && countdown $LONG_DELAY -1
-        break_stop
+        long_break_start
+        countdown $LONG_DELAY -1
+        long_break_stop
    done
 }
 
