@@ -317,9 +317,9 @@ music_start() {
     if [ -d "$SONG" ]
     then 
         #Choose a random music
-        play="$(ls -Q $SONG/* | sort -R | tr '\n' ' ')"
+        play="$(ls -Q $SONG/* 2>/dev/null | sort -R | tr '\n' ' ')"
     fi
-    eval "$PLAYER $play &"
+    [ "$play" ] && eval "$PLAYER $play &>/dev/null &"
     SONG_PID=$!
 }
 
