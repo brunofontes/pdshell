@@ -406,7 +406,14 @@ main() {
             fi
 
             # don't want to have a break after last session
-            [ $i -ne $SESSIONS ] && clear && echo "Time left of break:" && break_start && countdown $DELAY -1
+            if [ $i -ne $SESSIONS ]
+            then
+                clear
+                echo "Time left of break:"
+                break_start
+                countdown $DELAY -1
+            fi
+
             break_stop
             if [ $RETURN_CODE == 1 ]
             then
@@ -414,6 +421,7 @@ main() {
                 RETURN_CODE=0
                 continue
             fi
+
         done
         clear
         echo "Time left of long break:" 
