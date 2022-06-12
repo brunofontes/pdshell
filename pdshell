@@ -298,8 +298,8 @@ kill_own_pids() {
 }
 
 music_start() {
-    [ $SONG ] || return
-    local play=$SONG
+    [[ -z $SONG ]] && return
+    local play="\"$SONG\""
 
     if [ -d "$SONG" ]
     then 
