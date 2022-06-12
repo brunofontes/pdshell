@@ -55,7 +55,7 @@ SHARE_FOLDER="$HOME/.local/share/$NAME/"
 ALARM="$SHARE_FOLDER/alarm.wav"
 
 PLAYER="/usr/bin/play -q"
-CONFIG="$HOME/.config/$NAME.conf"
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/$NAME.conf"
 
 
 # colors
