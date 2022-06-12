@@ -21,6 +21,7 @@ CMD parameters available:
 -f,                             figlet on
 -s,    --song,                  path to mp3 or folder of mp3s to play during each session
 -c,    --config,                read an alternative config file
+-nc,   --no-config,             ignore the default config file
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
 -ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
@@ -55,6 +56,7 @@ SHARE_FOLDER="$HOME/.local/share/$NAME/"
 ALARM="$SHARE_FOLDER/alarm.wav"
 
 PLAYER="/usr/bin/play -q"
+
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/$NAME.conf"
 
 
@@ -65,6 +67,23 @@ YELLOW="\033[0;33m"
 CYAN="\033[0;34m"
 FIN="\033[0m"
 
+
+while [[ $# -gt 0 ]]
+do
+    case $1 in
+        -nc|--no-config)
+            unset CONFIG
+            shift
+            ;;
+        -c|--config)
+            CONFIG="$2"
+            shift && shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Read the configuration file
 if [ -r $CONFIG ]
@@ -144,10 +163,6 @@ do
             ;;
         -elbc|--end-long-break-cmd)
             ESBC+=("$2")
-            shift && shift
-            ;;
-        -c|--config)
-            CONFIG="$2"
             shift && shift
             ;;
         *)
