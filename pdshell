@@ -202,9 +202,14 @@ shortcuts() {
 }
 
 countdown() {
-    # args: $1 -> length of countdown in seconds, $2, session number (-1 = break)
+    # args: 
+    #   $1 -> length of countdown in seconds
+    #   $2 -> session number (-1 = break)
+    #   $3 -> end cmd to run
+
     msg="🍅Time left of session $2/$SESSIONS:🍅"
     [ "$2" -eq -1 ] && msg="🍅Time left of break:🍅"
+    local end_cmd=$3
     # date in seconds when countdown will end
     start=$(($(date +%s) + $1)); 
 
@@ -240,7 +245,7 @@ countdown() {
     
     # stop music before alarm
     [ $MUSIC -eq 1 ] && music_pause
-    cmd_end
+    eval $end_cmd
 
     # when session is finished, start the alarm
     printf "\nPress 's' to stop alarm"
@@ -346,43 +351,49 @@ music_start() {
 }
 
 short_break_start() {
-    if [ "${#SSBC[*]}" -gt 0 ]
-    then
-        exec $SSBC &>/dev/null &
-        SSBC_PID=$!
-    fi
+    for cmd in "${SSBC[@]}"
+    do
+        exec $cmd &>/dev/null &
+        SSBC_PID+=("$!")
+    done
 }
  
 short_break_stop() {
-    if [ -z $ESBC ]
+    if [ "${#ESBC[*]}" == 0 ]
     then
         kill_own_pids SSBC_PID[@]
         unset SSBC_PID
+        return
     fi
-    if [ "${#ESBC[*]}" -gt 0 ]
-    then
-        exec $ESBC &>/dev/null &
-    fi
+
+    for cmd in "${ESBC[@]}"
+    do
+        eval $cmd &>/dev/null &
+    done
+    unset SSBC_PID
 }
 
 long_break_start() {
-    if [ "${#SLBC[*]}" -gt 0 ]
-    then
-        exec $SLBC &>/dev/null &
-        SLBC_PID=$!
-    fi
+    for cmd in "${SLBC[@]}"
+    do
+        exec $cmd &>/dev/null &
+        SLBC_PID+=("$!")
+    done
 }
  
 long_break_stop() {
-    if [ -z $ELBC ]
+    if [ "${#ELBC[*]}" == 0 ]
     then
-        kill_own_pids SSBC_PID[@]
+        kill_own_pids SLBC_PID[@]
         unset SLBC_PID
+        return
     fi
-    if [ "${#ELBC[*]}" -gt 0 ]
-    then
-        exec $ELBC &>/dev/null &
-    fi
+
+    for cmd in "${ELBC[@]}"
+    do
+        eval $cmd &>/dev/null &
+    done
+    unset SLBC_PID
 }
 
 check_files_exist() {
@@ -420,7 +431,7 @@ main() {
             echo "Time left of session $i/$SESSIONS:"
             [ $MUSIC -eq 1 ] && music_start
             cmd_start
-            countdown $TIME $i
+            countdown $TIME $i cmd_end
             if [ $RETURN_CODE == 1 ]
             then
                 ((i--))
@@ -434,10 +445,9 @@ main() {
                 clear
                 echo "Time left of break:"
                 short_break_start
-                countdown $DELAY -1
+                countdown $DELAY -1 short_break_stop
             fi
 
-            short_break_stop
             if [ $RETURN_CODE == 1 ]
             then
                 ((i--))
@@ -449,8 +459,7 @@ main() {
         clear
         echo "Time left of long break:" 
         long_break_start
-        countdown $LONG_DELAY -1
-        long_break_stop
+        countdown $LONG_DELAY -1 long_break_stop
    done
 }
 
