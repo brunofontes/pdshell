@@ -14,10 +14,10 @@ CMD parameters available:
 
 -t,    --time,                  time for every session in minutes [default:25 minutes]
 -d,    --delay,                 delay between sessions in minutes [default:5 minutes]
--m,    --music,                 chose song for 'aplay' to play during each session
+-m,    --music,                 chose song for 'play' to play during each session
 -n,                             total sessions [default:4]
 -f,                             figlet on
--s,    --song,                  full path to song to be played by aplay
+-s,    --song,                  full path to song to be played by play
 -c,    --config,                read an alternative config file
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
@@ -47,9 +47,12 @@ MUSIC=1
 FIGLET=0
 
 OWN_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SONG="$OWN_PATH/music"
 ALARM="$OWN_PATH/alarm.wav"
 
+PLAYER="/usr/bin/play -q"
 CONFIG="$HOME/.config/pdshell.conf"
+
 
 # colors
 RED="\033[0;31m"
@@ -136,6 +139,7 @@ do
             ;;
         *)
             echo "Unknown option $1"
+            echo "Type pdshell --help to view help window"
             exit 1
             ;;
     esac
@@ -204,22 +208,18 @@ countdown() {
     cmd_end
 
     # when session is finished, start the alarm
-    printf "\nPress 's' to stop alarm\n"
+    printf "\nPress 's' to stop alarm"
+    [ $2 -eq -1 ] && echo " and start next session" || echo ""
     printf "Press 'r' to restart last pomodoro\n"
     printf "Press 'q' to quit\n"
-    [ $2 -eq -1 ] && echo " and start next session" || echo ""
 
-    process_name="aplay_pdshell"
     RETURN_CODE=0
+    local alarm_pid="99999999"
     while true
     do
         # play alarm sound indefinetely until the 's' key is pressed
+        ps -p $alarm_pid &>/dev/null || eval "$PLAYER $ALARM &>/dev/null &" && alarm_pid=$!
         
-        if [ -z $(pidof "$process_name") ]
-        then
-            bash -c "exec -a $process_name aplay \"$ALARM\" &>/dev/null" &
-        fi
-
         read -t 0.1 -r -s -n 1
         case $REPLY in
             r)
@@ -230,19 +230,14 @@ countdown() {
                 break
                 ;;
             q)
-                pkill -f "$process_name" &>/dev/null
+                kill $alarm_pid &>/dev/null
                 exit_p
                 ;;
         esac
         sleep 0.5
     done
     sleep 0.3
-    pkill -f "$process_name" &>/dev/null
-    sleep 0.1
-    if [ $(pidof "$process_name") ]
-    then
-        pkill -9 -f "$process_name" &>/dev/null
-    fi
+    kill $alarm_pid &>/dev/null
 
     # turn off keypress after input received
     stty -echo
@@ -303,14 +298,16 @@ kill_own_pids() {
 }
 
 music_start() {
-    [ -z "$SONG" ] && SONG=$(ls $OWN_PATH/music/*.mp3 | sort -R | tail -1) #Choose a random music
-    if [ -f "$SONG" ]
-    then
-        aplay "$SONG" >/dev/null 2>&1 &
-    else
-        $SONG &>/dev/null &
+    [ $SONG ] || return
+    local play=$SONG
+
+    if [ -d "$SONG" ]
+    then 
+        #Choose a random music
+        play="$(ls -Q $SONG/* | sort -R | tr '\n' ' ')"
     fi
-    [ $SONG ] && SONG_PID=$!
+    eval "$PLAYER $play &"
+    SONG_PID=$!
 }
 
 break_start() {
