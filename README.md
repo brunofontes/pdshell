@@ -49,7 +49,9 @@ q - quit
 -n,                             total sessions [default:4]
 -f,                             figlet on
 -s,    --song,                  choose a mp3 file or a folder of mp3s to play during each session
+
 -c,    --config,                read an alternative config file
+-nc,   --no-config,             ignore the default config file
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
 -ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
