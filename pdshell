@@ -292,6 +292,8 @@ exit_p() {
     stty echo
     [ $MUSIC -eq 1 ] && music_pause
     cmd_end
+    short_break_stop
+    long_break_stop
     echo -e ""$RED"\nexiting$FIN"
 
     exit $1
