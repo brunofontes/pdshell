@@ -43,7 +43,8 @@ q - quit
 ## Usage
 ```
 -t,    --time,                  time for every session in minutes [default:25 minutes]
--d,    --delay,                 delay between sessions in minutes [default:5 minutes]
+-d,    --delay,                 delay between sessions in minutes (short break) [default: 5 minutes]
+-ld,   --long-delay,            delay between set of sessions in minutes (long break) [default: 30 minutes]
 -m,    --music,                 enable the music
 -nm,   --no-music,              disalbe the music
 -n,                             total sessions [default:4]
