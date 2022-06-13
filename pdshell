@@ -184,17 +184,19 @@ done
 
 shortcuts() {
     local answer=$1
+    local pomolen=$2
+
     case $answer in
         $letter)
             exec $letcmd &>/dev/null &
             ;;
         r)
-            start=$(($(date +%s) + $1));
+            start=$(($(date +%s) + $pomolen));
             ;;
         p)
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
             read
-            start=$(($(date +%s) + $1));
+            start=$(($(date +%s) + $pomolen));
             echo -en "\r                                                  \r"
             ;;
         n)
@@ -212,9 +214,12 @@ countdown() {
     #   $2 -> session number (-1 = break)
     #   $3 -> end cmd to run
 
+    local len=$1
+    local session_num=$2
+    local end_cmd=$3
+
     msg="🍅Time left of session $2/$SESSIONS:🍅"
     [ "$2" -eq -1 ] && msg="🍅Time left of break:🍅"
-    local end_cmd=$3
     # date in seconds when countdown will end
     start=$(($(date +%s) + $1)); 
 
@@ -224,7 +229,7 @@ countdown() {
     while [ "$start" -ge "$(date +%s)" ]
     do
         read -t 0.1 -r -s -n 1
-        shortcuts $REPLY
+        shortcuts $REPLY $len
             
         # due to the rendering of emoji's, the text needs to be offset to appear at the center
         print_offset=10
