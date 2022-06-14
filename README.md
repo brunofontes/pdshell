@@ -45,14 +45,16 @@ q - quit
 -t,    --time,                  time for every session in minutes [default:25 minutes]
 -d,    --delay,                 delay between sessions in minutes (short break) [default: 5 minutes]
 -ld,   --long-delay,            delay between set of sessions in minutes (long break) [default: 30 minutes]
--m,    --music,                 enable the music
--nm,   --no-music,              disalbe the music
 -n,                             total sessions [default:4]
 -f,                             figlet on
--s,    --song,                  choose a mp3 file or a folder of mp3s to play during each session
+
+-m,    --music,                 enable the music [default]
+-nm,   --no-music,              disable the music
+-s,    --song,                  path to mp3 or folder of mp3s to play during each session [default: ~/Music]
 
 -c,    --config,                read an alternative config file
 -nc,   --no-config,             ignore the default config file
+       --edit-config,           edit the config file with your $EDITOR
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
 -ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
@@ -67,6 +69,7 @@ q - quit
        --uninstall,             Uninstall the program
 
 -h,    --help,                  shows this help
+
 ```
 
 * You can add multiple commands by including the prefix again. Example:

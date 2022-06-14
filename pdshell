@@ -17,12 +17,16 @@ CMD parameters available:
 -t,    --time,                  time for every session in minutes [default:25 minutes]
 -d,    --delay,                 delay between sessions in minutes (short break) [default: 5 minutes]
 -ld,   --long-delay,            delay between set of sessions in minutes (long break) [default: 30 minutes]
--m,    --music,                 choose a mp3 file or a folder of mp3s to play during each session
 -n,                             total sessions [default:4]
 -f,                             figlet on
--s,    --song,                  path to mp3 or folder of mp3s to play during each session
+
+-m,    --music,                 enable the music [default]
+-nm,   --no-music,              disable the music
+-s,    --song,                  path to mp3 or folder of mp3s to play during each session [default: ~/Music]
+
 -c,    --config,                read an alternative config file
 -nc,   --no-config,             ignore the default config file
+       --edit-config,           edit the config file with your default \$EDITOR [$EDITOR]
 
 -sc,   --start-cmd,             *bash command that will run at the start of a pomodoro
 -ec,   --end-cmd,               *bash command that will run at the end of a pomodoro
@@ -84,11 +88,21 @@ do
     esac
 done
 
-# Read the configuration file
-if [[ -r $CONFIG ]]
-then
-    source $CONFIG
-fi
+loadConfig() {
+    # Read the configuration file
+    if [[ -r $CONFIG ]]
+    then
+        source $CONFIG
+    fi
+
+    # convert time and delay to from minutes to seconds
+    # have to divide by 1 to always get integer result
+    TIME=$(echo "($TIME * 60)/1" | bc)
+    DELAY=$(echo "($DELAY * 60)/1" | bc)
+    LONG_DELAY=$(echo "($LONG_DELAY * 60)/1" | bc)
+}
+
+loadConfig
 
 # argument handling
 while [[ $# -gt 0 ]]
@@ -99,6 +113,10 @@ do
             ;;
         -nc|--no-config)
             shift
+            ;;
+        --edit-config)
+            eval "$EDITOR $CONFIG"
+            exit 0
             ;;
         --install)
             sudo cp --force "$NAME" "/usr/local/bin/"
@@ -193,6 +211,10 @@ shortcuts() {
         r)
             start=$(($(date +%s) + $pomolen));
             ;;
+        R)
+            loadConfig
+            echo "Any changes will be applied in the next Pomo/Break"
+            ;;
         p)
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
             read
@@ -261,6 +283,7 @@ countdown() {
     printf "\nPress 's' to stop alarm"
     [ $2 -eq -1 ] && echo " and start next session" || echo ""
     printf "Press 'r' to restart last pomodoro\n"
+    printf "Press 'R' to reload the config file\n"
     printf "Press 'q' to quit\n"
 
     RETURN_CODE=0
@@ -416,18 +439,13 @@ check_files_exist() {
     fi
 }
 
+
 main() {
     # when SIGINT is received, exit
     # necessary because 
     trap "exit_p" 2
     # turn off keyboard input
     stty -echo
-
-    # convert time and delay to from minutes to seconds
-    # have to divide by 1 to always get integer result
-    TIME=$(echo "($TIME * 60)/1" | bc)
-    DELAY=$(echo "($DELAY * 60)/1" | bc)
-    LONG_DELAY=$(echo "($LONG_DELAY * 60)/1" | bc)
 
     OWN_PID=$$
 
