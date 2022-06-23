@@ -1,3 +1,8 @@
+## 0.1.1 (junho 23, 2022)
+  - feat: added autocomplete file
+  - feat: added option to reload configuration
+  - fix: pomo shortcuts working again
+
 ## 0.1.0 (junho 12, 2022)
   - feat: added configuration for long break
   - fix: short and long break ends now run when exiting app
