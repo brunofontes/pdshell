@@ -104,6 +104,27 @@ loadConfig() {
 
 loadConfig
 
+install() {
+    sudo cp --force "$NAME" "/usr/local/bin/"
+    mkdir -p "$SHARE_FOLDER"
+    cp --no-clobber config.conf $CONFIG
+    cp alarm.wav "$ALARM"
+
+    # Install man file
+    # sudo cp pdshell.1 /usr/share/man/man1/
+    # sudo chmod 644 /usr/share/man/man1/pdshell.1
+
+    # Install autocomplete file
+    sudo cp --force autocomplete "/usr/share/bash-completion/completions/pdshell"
+    if [[ $SHELL = *zsh ]]
+    then
+        /bin/zsh -c "[ -d $ZSH_CUSTOM ] && cp autocomplete $ZSH_CUSTOM/pdshell.zsh"
+        # grep "$complete" $HOME/.zshrc &>/dev/null || echo "$complete" >> $HOME/.zshrc
+    fi
+
+    echo "$NAME installed."
+}
+
 # argument handling
 while [[ $# -gt 0 ]]
 do
@@ -119,11 +140,7 @@ do
             exit 0
             ;;
         --install)
-            sudo cp --force "$NAME" "/usr/local/bin/"
-            cp --no-clobber config.conf $CONFIG
-            mkdir -p "$SHARE_FOLDER"
-            cp alarm.wav "$ALARM"
-            echo "$NAME installed. Check the configuration file on: $CONFIG"
+            install
             exit 0
             ;;
         --uninstall)

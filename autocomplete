@@ -1,0 +1,49 @@
+_pdshell()
+{
+    case "${COMP_WORDS[COMP_CWORD-1]}" in
+        -c|--config|-s|--song)
+            COMPREPLY=( $(compgen -d -o default -- "${COMP_WORDS[COMP_CWORD]}") );
+            return
+            ;;
+    esac
+
+    local params="
+        -c
+        -d
+        -ec
+        -elbc
+        -esbc
+        -f
+        -h    
+        -ld
+        -m
+        -n
+        -nc
+        -nm
+        -s
+        -sc
+        -slbc
+        -ssbc
+        -t
+        --config
+        --delay
+        --edit-config
+        --end-cmd
+        --end-long-break-cmd
+        --end-short-break-cmd
+        --help
+        --install
+        --long-delay
+        --music
+        --no-config
+        --no-music
+        --song
+        --start-cmd
+        --start-long-break-cmd
+        --start-short-break-cmd
+        --time
+        --uninstall
+    "
+	COMPREPLY=($(compgen -W "$params" -- "${COMP_WORDS[COMP_CWORD]}"))
+}
+complete -F _pdshell pdshell
