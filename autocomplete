@@ -1,12 +1,33 @@
+#!/bin/bash
+
 _pdshell()
 {
-    case "${COMP_WORDS[COMP_CWORD-1]}" in
-        -c|--config|-s|--song)
-            COMPREPLY=( $(compgen -d -o default -- "${COMP_WORDS[COMP_CWORD]}") );
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=${COMP_WORDS[((COMP_CWORD-1))]}
+    case "$prev" in
+        -c|--config)
+            _filedir conf
+            return
+            ;;
+        -s|--song)
+            _filedir '@(8svx|aif|aifc|aiff|aiffc|al|amb|amr-nb|amr-wb|anb|au|avr|awb|caf|cdda|cdr|cvs|cvsd|cvu|dat|dvms|f32|f4|f64|f8|fap|flac|fssd|gsm|gsrt|hcom|htk|ima|ircam|la|lpc|lpc10|lu|mat|mat4|mat5|maud|mp2|mp3|nist|ogg|paf|prc|pvf|raw|s1|s16|s2|s24|s3|s32|s4|s8|sb|sd2|sds|sf|sl|sln|smp|snd|sndfile|sndr|sndt|sou|sox|sph|sw|txw|u1|u16|u2|u24|u3|u32|u4|u8|ub|ul|uw|vms|voc|vorbis|vox|w64|wav|wavpcm|wv|wve|xa|xi|m3u|pls)'
+            return
+            ;;
+        -ed|-elbc|-esbc|-sc|-slbc|-ssbc)
+            _filedir
+            COMPREPLY=($(compgen -A command -- ${cur}))
             return
             ;;
     esac
+    if [ $prev != "pdshell" ]
+    then
+        _filedir
+        COMPREPLY+=($(compgen -A command -- ${cur}))
+    fi
+    _pds_default_params
+}
 
+_pds_default_params() {
     local params="
         -c
         -d
@@ -44,6 +65,7 @@ _pdshell()
         --time
         --uninstall
     "
-	COMPREPLY=($(compgen -W "$params" -- "${COMP_WORDS[COMP_CWORD]}"))
+	COMPREPLY+=($(compgen -W "$params" -- "$cur"))
 }
+
 complete -F _pdshell pdshell
