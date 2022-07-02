@@ -58,6 +58,7 @@ _pds_default_params() {
         --music
         --no-config
         --no-music
+        --player
         --song
         --start-cmd
         --start-long-break-cmd
