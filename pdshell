@@ -239,9 +239,11 @@ shortcuts() {
             echo "Any changes will be applied in the next Pomo/Break"
             ;;
         p)
+            music_pause
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
             read
             start=$(($(date +%s) + $pomolen));
+            music_start
             echo -en "\r                                                  \r"
             ;;
         n)
