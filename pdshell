@@ -364,7 +364,7 @@ music_pause() {
 cmd_start() {
     for cmd in "${SC[@]}"
     do
-        exec $cmd &>/dev/null &
+        run_command $cmd
         SC_PID+=("$!")
     done
 }
@@ -374,7 +374,7 @@ cmd_end() {
     then
         for cmd in "${EC[@]}"
         do
-            eval $cmd &>/dev/null &
+            run_command $cmd
         done
         unset SC_PID
         return
@@ -413,7 +413,7 @@ music_start() {
 short_break_start() {
     for cmd in "${SSBC[@]}"
     do
-        exec $cmd &>/dev/null &
+        run_command $cmd
         SSBC_PID+=("$!")
     done
 }
@@ -428,7 +428,7 @@ short_break_stop() {
 
     for cmd in "${ESBC[@]}"
     do
-        eval $cmd &>/dev/null &
+        run_command $cmd
     done
     unset SSBC_PID
 }
@@ -436,7 +436,7 @@ short_break_stop() {
 long_break_start() {
     for cmd in "${SLBC[@]}"
     do
-        exec $cmd &>/dev/null &
+        run_command $cmd
         SLBC_PID+=("$!")
     done
 }
@@ -451,9 +451,14 @@ long_break_stop() {
 
     for cmd in "${ELBC[@]}"
     do
-        eval $cmd &>/dev/null &
+        run_command $cmd
     done
     unset SLBC_PID
+}
+
+run_command() {
+    local cmd=$1
+    eval PDSHELL_SESSION=$SESSION $cmd &>/dev/null &
 }
 
 check_files_exist() {
