@@ -262,11 +262,11 @@ countdown() {
     #   $3 -> end cmd to run
 
     local len=$1
-    local session_num=$2
+    SESSION=$2
     local end_cmd=$3
 
-    msg="🍅Time left of session $2/$SESSIONS:🍅"
-    [ "$2" -eq -1 ] && msg="🍅Time left of break:🍅"
+    msg="🍅Time left of session $SESSION/$SESSIONS:🍅"
+    [ "$SESSION" -eq -1 ] && msg="🍅Time left of break:🍅"
     # date in seconds when countdown will end
     start=$(($(date +%s) + $1)); 
 
@@ -290,14 +290,14 @@ countdown() {
    
     # session finished
     clear
-    [ $2 -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $2 finished"
+    [ $SESSION -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $SESSION finished"
     
     # message when session is finished
     if [ $FIGLET -eq 1 ]
     then
-        [ $2 -ne -1 ] && figlet -c -t "Session $2/$SESSIONS finished" || figlet -c -t "Break finished"
+        [ $SESSION -ne -1 ] && figlet -c -t "Session $SESSION/$SESSIONS finished" || figlet -c -t "Break finished"
     else
-        [ $2 -ne -1 ] && echo -e ""$GREEN"Session $2/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
+        [ $SESSION -ne -1 ] && echo -e ""$GREEN"Session $SESSION/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
     fi
     
     # stop music before alarm
@@ -306,7 +306,7 @@ countdown() {
 
     # when session is finished, start the alarm
     printf "\nPress 's' to stop alarm"
-    [ $2 -eq -1 ] && echo " and start next session" || echo ""
+    [ $SESSION -eq -1 ] && echo " and start next session" || echo ""
     printf "Press 'r' to restart last pomodoro\n"
     printf "Press 'R' to reload the config file\n"
     printf "Press 'q' to quit\n"
