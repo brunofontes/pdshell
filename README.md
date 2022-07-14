@@ -51,6 +51,7 @@ q - quit
 -m,    --music,                 enable the music [default]
 -nm,   --no-music,              disable the music
        --player,                defines a custom player [default:sox]
+       --alarm-player,          defines a custom alarm player [default:same as player]
 -s,    --song,                  path to mp3 or folder of mp3s to play during each session [default: ~/Music]
 
 -c,    --config,                read an alternative config file
