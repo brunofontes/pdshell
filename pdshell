@@ -65,7 +65,8 @@ ALARM="$SHARE_FOLDER/alarm.wav"
 PLAYER="/usr/bin/play -q"
 ALARM_PLAYER=$PLAYER
 
-CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/$NAME.conf"
+CONFIG_FOLDER="${XDG_CONFIG_HOME:-$HOME/.config}"
+CONFIG="$CONFIG_FOLDER/$NAME.conf"
 
 
 # colors
@@ -96,6 +97,8 @@ loadConfig() {
     if [[ -r $CONFIG ]]
     then
         source $CONFIG
+    else
+        sourceConfigFile "$CONFIG" 
     fi
 
     # convert time and delay to from minutes to seconds
@@ -103,6 +106,12 @@ loadConfig() {
     TIME=$(echo "($TIME * 60)/1" | bc)
     DELAY=$(echo "($DELAY * 60)/1" | bc)
     LONG_DELAY=$(echo "($LONG_DELAY * 60)/1" | bc)
+}
+
+sourceConfigFile() {
+    local file="$CONFIG_FOLDER/$1"
+    [[ -r $file ]] && source "$file"
+    [[ -r "$file.conf" ]] && source "$file.conf"
 }
 
 loadConfig
