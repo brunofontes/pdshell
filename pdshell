@@ -278,6 +278,7 @@ countdown() {
 
     local len=$1
     SESSION=$2
+    export PDSHELL_SESSION=$SESSION
     local end_cmd=$3
 
     msg="🍅Time left of session $SESSION/$SESSIONS:🍅"
@@ -317,7 +318,7 @@ countdown() {
     
     # stop music before alarm
     [ $MUSIC -eq 1 ] && music_pause
-    eval $end_cmd
+    eval "$end_cmd"
 
     # when session is finished, start the alarm
     printf "\nPress 's' to stop alarm"
@@ -358,7 +359,6 @@ countdown() {
 }
 
 exit_p() {
-    $EC &>/dev/null &
     # turn on cursor again
     tput cnorm
     # turn on keyboard input again
@@ -380,7 +380,7 @@ cmd_start() {
     for cmd in "${SC[@]}"
     do
         run_command $cmd
-        SC_PID+=("$!")
+        SC_PID+=("$last_pid")
     done
 }
 
@@ -429,7 +429,7 @@ short_break_start() {
     for cmd in "${SSBC[@]}"
     do
         run_command $cmd
-        SSBC_PID+=("$!")
+        SSBC_PID+=("$last_pid")
     done
 }
  
@@ -452,7 +452,7 @@ long_break_start() {
     for cmd in "${SLBC[@]}"
     do
         run_command $cmd
-        SLBC_PID+=("$!")
+        SLBC_PID+=("$last_pid")
     done
 }
  
@@ -473,7 +473,8 @@ long_break_stop() {
 
 run_command() {
     local cmd=$1
-    eval PDSHELL_SESSION=$SESSION $cmd &>/dev/null &
+    exec $cmd &>/dev/null &
+    last_pid="$!"
 }
 
 check_files_exist() {
@@ -496,6 +497,7 @@ main() {
 
     # turn off cursor
     tput civis
+    export PDSHELL_SESSIONS=$SESSIONS
 
     while true
     do
