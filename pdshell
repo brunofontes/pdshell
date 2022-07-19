@@ -261,6 +261,16 @@ shortcuts() {
             music_start
             echo -en "\r                                                  \r"
             ;;
+        m)
+            if [ "$MUSIC" = 1 ]
+            then
+                music_pause
+                MUSIC=0
+            else
+                music_start
+                MUSIC=1
+            fi
+            ;;
         n)
             start=$(date +%s)
             ;;
