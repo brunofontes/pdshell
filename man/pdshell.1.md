@@ -21,8 +21,8 @@ pdshell - a pomodoro timer in the shell
 ## Commands
 Commands can be specified as a regular bash command that will be run in background. You can have as many commands as you need, by repeating the parameter. Example:
 
-\ \ \ pdshell \-ssbc "firefox https://brunofontes.net" \
-\ \ \ \ \ \ \ \ \ \ \ \-ssbc "gomuks" \-ssbc "myscript.sh"
+\ \ \ **pdshell** *\-ssbc* "firefox https://brunofontes.net" \
+\ \ \ \ \ \ \ \ \ \ \ *\-ssbc* "gomuks" *\-ssbc* "myscript.sh"
 
 If no "end command" is specified, all commands will be killed at the end of the timer. In our example, **firefox**, **gomuks** and **myscript.sh** would be killed when the short break were over. On the other side, if an "end command" is specified, you will need to handle (or not) to stop your commands.
 
@@ -45,6 +45,11 @@ If no "end command" is specified, all commands will be killed at the end of the 
 **R**
 : *Reload* the config file.
 
+## Config file
+All parameters can be defined in a config files, so you can run \'**pdshell**\' to load the default config file or \'**pdshell** *-c* CONFIG_FILE\' to specify a different one.
+
+Run \'**pdshell** *\--edit-config*\' to see/edit the config file.
+
 # OPTIONS
 **-t**, **\--time** *MINUTES*
 : Duration, in minutes, of each pomo. [Default: 25]
@@ -58,8 +63,63 @@ If no "end command" is specified, all commands will be killed at the end of the 
 **-n** *INT*
 : Number of sessions before a long break. [Default: 4]
 
+**-f**
+: Shows timer using *Figlet* (you need to have *figlet* installed to use this option)
+
+**-m**, **\--music**
+: Enables music during pomos (default).
+
+**-nm**, **\--no-music**
+: Disables music during pomos.
+
+**\--player** *PLAYER_CMD*
+: Define a custom player. It will be used for the music and also the alarm, if not specified an specific one. [Default: */usr/bin/play -q*]
+
+**\--alarm-player** *PLAYER_CMD*
+: Specify a different player for the alarm. Usefull if you just want to have a different volume or output for it. [Default: same as *\--player*]
+
+**-s**, **\--song** *PATH*|*FILE*
+: Specify a folder to randomicaly play all musics or a music file to play it directly. You can also define *\--player* as **mpv** and a **YouTube** video URL here. If you need a more advanced/personalized way, set **\--no-music** parameter and include a **\--start-cmd** with it. [Default *$HOME/Music*]
+
+**-c**, **\--config** *FILE*
+: Specify a different configuration file to be used. You can save it on *\$XDG_CONFIG_HOME* or, if not defined, *$HOME/.config* to be specified by just the name (without the path).
+
+**-nc**, **\--no-config**
+: Ignores the default config file so you can run it with the default settings. Can be combined with any parameters.
+
+**\--edit-config**
+: Edit the default config file using your default *$EDITOR* and exit.
+
+**-sc**, **\--start-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the start of a pomodoro. Multiple commands can be used by adding the parameter again.
+
+**-ec**, **\--end-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the end of a pomodoro. Multiple commands can be used by adding the parameter again.
+
+**-ssbc**, **\--start-short-break-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the start of a short break. Multiple commands can be used by adding the parameter again.
+
+**-esbc**, **\--end-short-break-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the end of a short break. Multiple commands can be used by adding the parameter again.
+
+**-slbc**, **\--start-long-break-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the start of a long break. Multiple commands can be used by adding the parameter again.
+
+**-elbc**, **\--end-long-break-cmd** *COMMAND*|*SCRIPT*
+: Define a command to run at the end of a long break. Multiple commands can be used by adding the parameter again.
+
+**\--install**
+: Install **pdshell** so you can run it from anywhere and exit.
+
+**\--uninstall**
+: Removes installed **pdshell** and exit.
+
+**-h**, **\--help**
+: Shows a help message and exit.
+
 # EXAMPLES
-Examples: Some examples of common usage.
+**pdshell --player "/bin/mpv --no-vid --volume=50.000"**
+: Play the music using '/bin/mpv' with no video and volume set as 50%.
 
 # EXIT VALUES
 Exit Values: The possible return codes and their meanings.
