@@ -46,6 +46,8 @@ CMD parameters available:
 
 * You can add multiple commands by including the prefix again. Example:
 $NAME -sc \"play ~/music.mp3\" -sc \"start_todo.sh\"
+
+See detailed information by running 'man pdshell'.
 "
 
 TIME=25

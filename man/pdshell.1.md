@@ -6,13 +6,12 @@
 pdshell - a pomodoro timer in the shell
 
 # SYNOPSIS
-**pdshell**\
 **pdshell** [*\--install*|*\--uninstall*]\
 **pdshell** [*\--edit-config*]\
 **pdshell** \[*-c*|*\--config*\] config-file ...
 
 **pdshell** \[\[*-s*|*\--song*\] path|music-file\] \
-\ \ \ \ \ \ \ \ \ \[\[*command-options*\] script|command\] ...
+\ \ \ \ \ \ \ \ \ \[\[*command-options*\] shell-command\] ...
 
 
 # DESCRIPTION
@@ -26,9 +25,18 @@ Commands can be specified as a regular bash command that will be run in backgrou
 
 If no "end command" is specified, all commands will be killed at the end of the timer. In our example, **firefox**, **gomuks** and **myscript.sh** would be killed when the short break were over. On the other side, if an "end command" is specified, you will need to handle (or not) to stop your commands.
 
+## Enrionment variables
+When running scripts from **pdshell**, the following envionment varibles are available:
+
+**\$PDSHELL_SESSIONS**
+: The defined number of sessions before a long break.
+
+**\$PDSHELL_SESSION**
+: The number of the active session starting from 1, up to *\$PDSHELL_SESSIONS*.
+
 ## Keyboard Control
 **m**
-: Toggles *music*.
+: Toggles *music* on or off.
 
 **n**
 : *Next* section. It actually forwards the current pomo/pause to the very last second.
@@ -118,8 +126,11 @@ Run \'**pdshell** *\--edit-config*\' to see/edit the config file.
 : Shows a help message and exit.
 
 # EXAMPLES
-**pdshell --player "/bin/mpv --no-vid --volume=50.000"**
-: Play the music using '/bin/mpv' with no video and volume set as 50%.
+**pdshell \--player "/bin/mpv \--no-vid \--volume=50.000"**
+: Play the music using `/bin/mpv` with no video and volume set as 50%.
+
+**pdshell -nm -sc "tmux splitw todolist list" -sc "firefox https://webmail.company.com" -sc "./logHour.sh"
+: At the start of each pomo it will split the tmux window, and list tasks on `todolist` at it, open the company webmail in **firefox** and run a script called **logHour.sh*.
 
 # EXIT VALUES
 Exit Values: The possible return codes and their meanings.
