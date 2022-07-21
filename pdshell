@@ -389,7 +389,7 @@ music_pause() {
 cmd_start() {
     for cmd in "${SC[@]}"
     do
-        run_command $cmd
+        run_command "$cmd"
         SC_PID+=("$last_pid")
     done
 }
@@ -399,7 +399,7 @@ cmd_end() {
     then
         for cmd in "${EC[@]}"
         do
-            run_command $cmd
+            run_command "$cmd"
         done
         unset SC_PID
         return
@@ -438,7 +438,7 @@ music_start() {
 short_break_start() {
     for cmd in "${SSBC[@]}"
     do
-        run_command $cmd
+        run_command "$cmd"
         SSBC_PID+=("$last_pid")
     done
 }
@@ -453,7 +453,7 @@ short_break_stop() {
 
     for cmd in "${ESBC[@]}"
     do
-        run_command $cmd
+        run_command "$cmd"
     done
     unset SSBC_PID
 }
@@ -461,7 +461,7 @@ short_break_stop() {
 long_break_start() {
     for cmd in "${SLBC[@]}"
     do
-        run_command $cmd
+        run_command "$cmd"
         SLBC_PID+=("$last_pid")
     done
 }
@@ -476,13 +476,13 @@ long_break_stop() {
 
     for cmd in "${ELBC[@]}"
     do
-        run_command $cmd
+        run_command "$cmd"
     done
     unset SLBC_PID
 }
 
 run_command() {
-    local cmd=$1
+    local cmd="$1"
     exec $cmd &>/dev/null &
     last_pid="$!"
 }
