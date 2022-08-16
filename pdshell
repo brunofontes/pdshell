@@ -131,7 +131,8 @@ install() {
     if [[ $SHELL = *zsh ]]
     then
         #/bin/zsh -c "[ -d $ZSH_CUSTOM ] && cp autocomplete $ZSH_CUSTOM/pdshell.zsh"
-        [ -d $ZSH_CUSTOM ] && cp autocomplete $ZSH_CUSTOM/pdshell.zsh || echo $ZSH_CUSTOM
+        #[ -d $ZSH_CUSTOM ] && cp autocomplete-zsh "$ZSH_CUSTOM/pdshell.zsh"
+        [ -d $HOME/.zsh/completion ] && cp autocomplete-zsh $HOME/.zsh/completion/pdshell.zsh
         # grep "$complete" $HOME/.zshrc &>/dev/null || echo "$complete" >> $HOME/.zshrc
     fi
 
@@ -273,11 +274,31 @@ shortcuts() {
             ;;
         n)
             start=$(date +%s)
+            logger "Skipped"
             ;;
         q)
+            logger "Aborted"
             exit_p
             ;;
     esac
+}
+
+logger() {
+    local message=$1
+
+    # If it is a break session, returns
+    if [ "$SESSION" -eq -1 ]
+    then
+        LOG_POMO_START=0
+        return
+    fi
+
+    # If Pomo is valid, logs message
+    if [ $LOG_POMO_START = 1 ]
+    then
+        LOG_POMO_START=0
+        echo "$(date +%Y-%m-%d,%H:%M:%S),$message" >> $CONFIG_FOLDER/pdshell.log
+    fi
 }
 
 countdown() {
@@ -290,6 +311,7 @@ countdown() {
     SESSION=$2
     export PDSHELL_SESSION=$SESSION
     local end_cmd=$3
+    LOG_POMO_START=1
 
     msg="🍅Time left of session $SESSION/$SESSIONS:🍅"
     [ "$SESSION" -eq -1 ] && msg="🍅Time left of break:🍅"
@@ -330,6 +352,7 @@ countdown() {
     [ $MUSIC -eq 1 ] && music_pause
     eval "$end_cmd"
 
+    logger "Pomodoro completed"
     # when session is finished, start the alarm
     printf "\nPress 's' to stop alarm"
     [ $SESSION -eq -1 ] && echo " and start next session" || echo ""
