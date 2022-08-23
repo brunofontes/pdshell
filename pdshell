@@ -454,7 +454,12 @@ music_start() {
         #Choose a random music
         play="$(ls -Q $SONG/* 2>/dev/null | sort -R | tr '\n' ' ')"
     fi
-    [ "$play" ] && eval "$PLAYER $play &>/dev/null &"
+    if [ $DEBUG ]
+    then
+        [ "$play" ] && eval "$PLAYER $play &"
+    else
+        [ "$play" ] && eval "$PLAYER $play &>/dev/null &"
+    fi
     SONG_PID=$!
 }
 
@@ -506,7 +511,12 @@ long_break_stop() {
 
 run_command() {
     local cmd="$1"
-    exec $cmd &>/dev/null &
+    if [ $DEBUG ]
+    then
+        exec $cmd &
+    else
+        exec $cmd &>/dev/null &
+    fi
     last_pid="$!"
 }
 
