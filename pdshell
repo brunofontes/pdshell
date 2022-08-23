@@ -365,7 +365,7 @@ countdown() {
     while true
     do
         # play alarm sound indefinetely until the 's' key is pressed
-        ps -p $alarm_pid &>/dev/null || eval "$ALARM_PLAYER $ALARM &>/dev/null &" && alarm_pid=$!
+        ps -p $alarm_pid &>/dev/null || (eval "$ALARM_PLAYER $ALARM &>/dev/null &" && alarm_pid=$! && notify-send "Timer finished!")
         
         read -t 0.1 -r -s -n 1
         case $REPLY in
