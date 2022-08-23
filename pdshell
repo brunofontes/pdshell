@@ -63,7 +63,7 @@ SHARE_FOLDER="$HOME/.local/share/$NAME/"
 ALARM="$SHARE_FOLDER/alarm.wav"
 
 PLAYER="/usr/bin/play -q"
-ALARM_PLAYER=$PLAYER
+ALARM_PLAYER="notify-send \"Timer finished!\"; $PLAYER"
 
 CONFIG_FOLDER="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONFIG="$CONFIG_FOLDER/$NAME.conf"
@@ -365,7 +365,7 @@ countdown() {
     while true
     do
         # play alarm sound indefinetely until the 's' key is pressed
-        ps -p $alarm_pid &>/dev/null || (eval "$ALARM_PLAYER $ALARM &>/dev/null &" && alarm_pid=$! && notify-send "Timer finished!")
+        ps -p $alarm_pid &>/dev/null || eval "$ALARM_PLAYER $ALARM &>/dev/null &" && alarm_pid=$!
         
         read -t 0.1 -r -s -n 1
         case $REPLY in
