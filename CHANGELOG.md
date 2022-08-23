@@ -1,3 +1,21 @@
+## 0.1.2 (agosto 23, 2022)
+  - feat: DEBUG messages added if used proper variable
+  - feat: alarm now also notify-send a message
+  - feat: added a simple logger
+  - fix: commands are working again
+  - feat: added shotcut to stop/start music
+  - fix: start command now ends again - refactor variables
+  - feat: improved configuration loader by filename (close #3)
+  - feat: added alarm player configuration - close #8
+  - refactor: added function to run commands
+  - refactor: renamed variable $2 to SESSION
+  - fix #2: pausing a pomodoro now also pauses the music
+  - docs: padronizing caps on help
+  - sec: improved shebang security
+  - fix: autocomplete is working with the full commands again
+  - feat: added audio player configuration (#1)
+  - feat: autocomplete now supports -c, -s and commands parameters
+
 ## 0.1.1 (junho 23, 2022)
   - feat: added autocomplete file
   - feat: added option to reload configuration
