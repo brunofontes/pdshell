@@ -268,7 +268,7 @@ shortcuts() {
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
             read
             start=$(($(date +%s) + $pomolen));
-            kill_own_pids $PAUSE_PID
+            kill $PAUSE_PID &>/dev/null &
             music_start
             echo -en "\r                                                  \r"
             ;;
