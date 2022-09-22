@@ -39,6 +39,8 @@ CMD parameters available:
 -slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
 -elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
 
+-pc,   --pause-cmd,             *bash command that will run when pause a pomo or break
+
        --install,               install the program to be run from anywhere
        --uninstall,             uninstall the program
 
@@ -61,6 +63,7 @@ OWN_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 SONG="$HOME/Music"
 SHARE_FOLDER="$HOME/.local/share/$NAME/"
 ALARM="$SHARE_FOLDER/alarm.wav"
+PAUSE_CMD=""
 
 PLAYER="/usr/bin/play -q"
 ALARM_PLAYER="notify-send \"Timer finished!\"; $PLAYER"
@@ -231,6 +234,10 @@ do
             ESBC+=("$2")
             shift && shift
             ;;
+        -pc|--pause-cmd)
+            PAUSE_CMD="$2"
+            shift && shift
+            ;;
         *)
             echo "Unknown option $1"
             echo "Type $NAME --help to view help window"
@@ -256,9 +263,12 @@ shortcuts() {
             ;;
         p)
             music_pause
+            run_command "$PAUSE_CMD"
+            PAUSE_PID=("$last_pid")
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
             read
             start=$(($(date +%s) + $pomolen));
+            kill_own_pids $PAUSE_PID
             music_start
             echo -en "\r                                                  \r"
             ;;
