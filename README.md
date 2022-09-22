@@ -67,6 +67,8 @@ q - quit
 -slbc, --start-long-break-cmd,  *bash command that will run at the start of a long break
 -elbc, --end-long-break-cmd,    *bash command that will run at the end of a long break
 
+-pc,   --pause-cmd,             *bash command that will run when pause a pomo or break
+
        --install,               install the program to be run from anywhere
        --uninstall,             uninstall the program
 
