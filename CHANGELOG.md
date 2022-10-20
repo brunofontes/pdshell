@@ -1,3 +1,7 @@
+## 0.1.3 (outubro 20, 2022)
+  - fix: forloop working again
+  - feat: added pause command
+
 ## 0.1.2 (agosto 23, 2022)
   - feat: DEBUG messages added if used proper variable
   - feat: alarm now also notify-send a message
