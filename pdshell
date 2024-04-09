@@ -56,7 +56,7 @@ LONG_DELAY=30
 SESSIONS=4
 
 # 0 -> off, 1 -> on
-MUSIC=1
+export MUSIC=1
 FIGLET=0
 
 OWN_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -99,7 +99,7 @@ loadConfig() {
     # Read the configuration file
     if [[ -r $CONFIG ]]
     then
-        source $CONFIG
+        source "$CONFIG"
     else
         sourceConfigFile "$CONFIG" 
     fi
@@ -122,7 +122,7 @@ loadConfig
 install() {
     sudo cp --force "$NAME" "/usr/local/bin/"
     mkdir -p "$SHARE_FOLDER"
-    cp --no-clobber config.conf $CONFIG
+    cp --no-clobber config.conf "$CONFIG"
     cp alarm.wav "$ALARM"
 
     # Install man file
@@ -135,7 +135,7 @@ install() {
     then
         #/bin/zsh -c "[ -d $ZSH_CUSTOM ] && cp autocomplete $ZSH_CUSTOM/pdshell.zsh"
         #[ -d $ZSH_CUSTOM ] && cp autocomplete-zsh "$ZSH_CUSTOM/pdshell.zsh"
-        [ -d $HOME/.zsh/completion ] && cp autocomplete-zsh $HOME/.zsh/completion/pdshell.zsh
+        [ -d "$HOME"/.zsh/completion ] && cp autocomplete-zsh "$HOME"/.zsh/completion/pdshell.zsh
         # grep "$complete" $HOME/.zshrc &>/dev/null || echo "$complete" >> $HOME/.zshrc
     fi
 
@@ -255,7 +255,7 @@ shortcuts() {
             exec $letcmd &>/dev/null &
             ;;
         r)
-            start=$(($(date +%s) + $pomolen));
+            start=$(($(date +%s) + pomolen));
             ;;
         R)
             loadConfig
@@ -266,9 +266,9 @@ shortcuts() {
             run_command "$PAUSE_CMD"
             PAUSE_PID=("$last_pid")
             echo -en "$RED Paused.$FIN Press enter to reset pomodoro...$FIN"
-            read
-            start=$(($(date +%s) + $pomolen));
-            kill $PAUSE_PID &>/dev/null &
+            read -r
+            start=$(($(date +%s) + pomolen));
+            kill "$PAUSE_PID" &>/dev/null &
             music_start
             echo -en "\r                                                  \r"
             ;;
@@ -288,7 +288,7 @@ shortcuts() {
             ;;
         q)
             logger "Aborted"
-            exit_p
+            exit_p 0
             ;;
     esac
 }
@@ -307,7 +307,7 @@ logger() {
     if [ $LOG_POMO_START = 1 ]
     then
         LOG_POMO_START=0
-        echo "$(date +%Y-%m-%d,%H:%M:%S),$message" >> $CONFIG_FOLDER/pdshell.log
+        echo "$(date +%Y-%m-%d,%H:%M:%S),$message" >> "$CONFIG_FOLDER"/pdshell.log
     fi
 }
 
@@ -334,11 +334,11 @@ countdown() {
     while [ "$start" -ge "$(date +%s)" ]
     do
         read -t 0.1 -r -s -n 1
-        shortcuts $REPLY $len
+        shortcuts "$REPLY" "$len"
             
         # due to the rendering of emoji's, the text needs to be offset to appear at the center
         print_offset=10
-        [ $FIGLET -eq 1 ] && clear && printf "%*s\n" $(((${#msg}+$COLUMNS+$print_offset)/2)) "$msg" \
+        [ $FIGLET -eq 1 ] && clear && printf "%*s\n" $(((${#msg}+COLUMNS+print_offset)/2)) "$msg" \
         && echo -ne "$(date -u --date @$((start - $(date +%s))) +%M:%S)\r" | figlet -c -t ||
         echo -ne "$CYAN\Uf061 $YELLOW $(date -u --date @$((start - $(date +%s))) +%M:%S)$FIN  🍅\r"
         # sleeping for one second between each print to stdout uses less cpu power, but will make the countdown have a discrepency of 1s which is negligable
@@ -348,14 +348,14 @@ countdown() {
    
     # session finished
     clear
-    [ $SESSION -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $SESSION finished"
+    [ "$SESSION" -ne -1 ] && notify-send -t 10000 -u "normal" "Session number $SESSION finished"
     
     # message when session is finished
     if [ $FIGLET -eq 1 ]
     then
-        [ $SESSION -ne -1 ] && figlet -c -t "Session $SESSION/$SESSIONS finished" || figlet -c -t "Break finished"
+        [ "$SESSION" -ne -1 ] && figlet -c -t "Session $SESSION/$SESSIONS finished" || figlet -c -t "Break finished"
     else
-        [ $SESSION -ne -1 ] && echo -e ""$GREEN"Session $SESSION/$SESSIONS finished$FIN" || echo -e "$GREEN""Break finished$FIN"
+        [ "$SESSION" -ne -1 ] && echo -e "${GREEN}Session $SESSION/$SESSIONS finished${FIN}" || echo -e "${GREEN}Break finished${FIN}"
     fi
     
     # stop music before alarm
@@ -365,7 +365,7 @@ countdown() {
     logger "Pomodoro completed"
     # when session is finished, start the alarm
     printf "\nPress 's' to stop alarm"
-    [ $SESSION -eq -1 ] && echo " and start next session" || echo ""
+    [ "$SESSION" -eq -1 ] && echo " and start next session" || echo ""
     printf "Press 'r' to restart last pomodoro\n"
     printf "Press 'R' to reload the config file\n"
     printf "Press 'q' to quit\n"
@@ -388,7 +388,7 @@ countdown() {
                 ;;
             q)
                 kill $alarm_pid &>/dev/null
-                exit_p
+                exit_p 0
                 ;;
         esac
         sleep 0.5
@@ -410,13 +410,13 @@ exit_p() {
     cmd_end
     short_break_stop
     long_break_stop
-    echo -e ""$RED"\nexiting$FIN"
+    echo -e "${RED}\nexiting${FIN}"
 
-    exit $1
+    exit "$1"
 }
 
 music_pause() {
-    [ $SONG_PID ] && kill $SONG_PID >/dev/null 2>&1 &
+    [ "$SONG_PID" ] && kill "$SONG_PID" >/dev/null 2>&1 &
 }
 
 cmd_start() {
@@ -446,10 +446,10 @@ kill_own_pids() {
     declare -a PIDS=("${!1}")
     for pd in "${PIDS[@]}"
     do
-        parentpid=`/bin/ps -o ppid= -p "$pd"`
-        if [ $parentpid -a $parentpid == $OWN_PID ]
+        parentpid=$(/bin/ps -o ppid= -p "$pd")
+        if [ "$parentpid" ] && [ "$parentpid" == $OWN_PID ]
         then
-            kill $pd &>/dev/null &
+            kill "$pd" &>/dev/null &
         fi
     done
     return 0
@@ -462,9 +462,9 @@ music_start() {
     if [ -d "$SONG" ]
     then 
         #Choose a random music
-        play="$(ls -Q $SONG/* 2>/dev/null | sort -R | tr '\n' ' ')"
+        play="$(ls -Q "$SONG"/* 2>/dev/null | sort -R | tr '\n' ' ')"
     fi
-    if [ $DEBUG ]
+    if [ "$DEBUG" ]
     then
         [ "$play" ] && eval "$PLAYER $play &"
     else
@@ -505,7 +505,7 @@ long_break_start() {
 }
  
 long_break_stop() {
-    if [ "${#ELBC[*]}" == 0 ]
+    if [[ "${#ELBC[*]}" == 0 ]]
     then
         kill_own_pids SLBC_PID[@]
         unset SLBC_PID
@@ -521,7 +521,7 @@ long_break_stop() {
 
 run_command() {
     local cmd="$1"
-    if [ $DEBUG ]
+    if [ "$DEBUG" ]
     then
         exec $cmd &
     else
@@ -554,14 +554,14 @@ main() {
 
     while true
     do
-        for ((i = 1; i <= $SESSIONS; i++))
+        for ((i = 1; i <= SESSIONS; i++))
         do
             # session
             clear
             echo "Time left of session $i/$SESSIONS:"
             [ $MUSIC -eq 1 ] && music_start
             cmd_start
-            countdown $TIME $i cmd_end
+            countdown "$TIME" $i cmd_end
             if [ $RETURN_CODE == 1 ]
             then
                 ((i--))
@@ -570,12 +570,12 @@ main() {
             fi
 
             # don't want to have a break after last session
-            if [ $i -ne $SESSIONS ]
+            if [ $i -ne "$SESSIONS" ]
             then
                 clear
                 echo "Time left of break:"
                 short_break_start
-                countdown $DELAY -1 short_break_stop
+                countdown "$DELAY" -1 short_break_stop
             fi
 
             if [ $RETURN_CODE == 1 ]
@@ -589,7 +589,7 @@ main() {
         clear
         echo "Time left of long break:" 
         long_break_start
-        countdown $LONG_DELAY -1 long_break_stop
+        countdown "$LONG_DELAY" -1 long_break_stop
    done
 }
 
